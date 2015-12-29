@@ -20,3 +20,4 @@ install:
   - travis_retry composer install --prefer-dist --no-interaction
 
 script:
+  - php -r "echo INTL_ICU_VERSION . \"\n\";"
