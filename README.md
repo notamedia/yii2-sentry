@@ -37,7 +37,7 @@ Writing simple message:
 Writing messages with extra data:
 
 ```php
-\Yii::error([
+\Yii::warning([
     'msg' => message',
     'extra' => 'value'
 ], 'category');
