@@ -18,6 +18,7 @@ return [
 				    'class' => 'notamedia\sentry\SentryTarget',
 				    'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.com/1,
 				    'levels' => ['error', 'warning'],
+				    'context' => true // Write the context information (dump user information, system variables, etc.)
 			    ],
 		    ],
 	    ],
@@ -33,11 +34,24 @@ Writing simple message:
 \Yii::error('message', 'category');
 ```
 
-Writing messages with context:
+Writing messages with extra data:
 
 ```php
-\Yii::error('message', 'category');
+\Yii::error([
+    'msg' => message',
+    'extra' => 'value'
+], 'category');
 ```
 
-## How it works
+## Log levels
 
+Yii2 log levels converts to Sentry levels:
+
+```
+\yii\log\Logger::LEVEL_ERROR => 'error',
+\yii\log\Logger::LEVEL_WARNING => 'warning',
+\yii\log\Logger::LEVEL_INFO => 'info',
+\yii\log\Logger::LEVEL_TRACE => 'debug',
+\yii\log\Logger::LEVEL_PROFILE_BEGIN => 'debug',
+\yii\log\Logger::LEVEL_PROFILE_END => 'debug',
+```
