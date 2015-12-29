@@ -31,7 +31,7 @@ return [
 ];
 ```
 
-## Usages
+## Usage
 
 Writing simple message:
 
