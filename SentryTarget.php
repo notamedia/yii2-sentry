@@ -33,12 +33,17 @@ class SentryTarget extends Target
      * @var \Raven_Client
      */
     protected $client;
-
-    public function init()
+    
+    /**
+     * {@inheritdoc}
+     */
+    public function collect($messages, $final)
     {
-        parent::init();
-
-        $this->client = new \Raven_Client($this->dsn, $this->clientOptions);
+        if (!isset($this->client)) {
+            $this->client = new \Raven_Client($this->dsn, $this->clientOptions);
+        }
+        
+        parent::collect($messages, $final);
     }
 
     /**
