@@ -1,4 +1,4 @@
-# Sentry logger for Yii2
+# [Sentry](https://getsentry.com) logger for Yii2
 
 [![Build Status](https://travis-ci.org/notamedia/yii2-sentry.svg)](https://travis-ci.org/notamedia/yii2-sentry)
 [![Latest Stable Version](https://poser.pugx.org/notamedia/yii2-sentry/v/stable)](https://packagist.org/packages/notamedia/yii2-sentry) 
