@@ -21,7 +21,7 @@ return [
 		    'targets' => [
 			    [
 				    'class' => 'notamedia\sentry\SentryTarget',
-				    'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.com/1,
+				    'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.com/1',
 				    'levels' => ['error', 'warning'],
 				    'context' => true // Write the context information. The default is true.
 			    ],
