@@ -12,7 +12,7 @@ use yii\log\Target;
 
 /**
  * SentryTarget records log messages in a Sentry.
- * 
+ *
  * @see https://getsentry.com
  */
 class SentryTarget extends Target
@@ -30,10 +30,14 @@ class SentryTarget extends Target
      */
     public $context = true;
     /**
+     * @var callable Callback function that can modify context's array
+     */
+    public $contextCallback;
+    /**
      * @var \Raven_Client
      */
     protected $client;
-    
+
     /**
      * {@inheritdoc}
      */
@@ -42,7 +46,7 @@ class SentryTarget extends Target
         if (!isset($this->client)) {
             $this->client = new \Raven_Client($this->dsn, $this->clientOptions);
         }
-        
+
         parent::collect($messages, $final);
     }
 
@@ -76,6 +80,9 @@ class SentryTarget extends Target
 
             if ($this->context) {
                 $extra['context'] = parent::getContextMessage();
+                if (is_callable($this->contextCallback)) {
+                    $extra['context'] = call_user_func($this->contextCallback, $extra['context'], $context);
+                }
             }
 
             $data = [
@@ -94,7 +101,7 @@ class SentryTarget extends Target
 
     /**
      * Returns the text display of the specified level for the Sentry.
-     * 
+     *
      * @param integer $level The message level, e.g. [[LEVEL_ERROR]], [[LEVEL_WARNING]].
      * @return string
      */
