@@ -83,7 +83,7 @@ class SentryTarget extends Target
             }
 
             if (is_callable($this->extraCallback)) {
-                $extra = call_user_func($this->extraCallback, $extra, $context);
+                $extra = call_user_func($this->extraCallback, $context, $extra);
             }
 
             $data = [
