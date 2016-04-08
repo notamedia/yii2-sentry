@@ -50,7 +50,7 @@ Writing messages with extra data:
 
 ### Context callback
 
-`contextCallback` property can modify context data as callable function
+`extraCallback` property can modify extra's data as callable function
  
 ```php
     'targets' => [
@@ -59,10 +59,10 @@ Writing messages with extra data:
             'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.com/1',
             'levels' => ['error', 'warning'],
             'context' => true // Write the context information. The default is true.
-            'contextCallback' => function($data, $exception) {
+            'extraCallback' => function($extra, $exception) {
                 // some manipulation with data
-                $data['some_data'] = \Yii::$app->someComponent->someMethod();
-                return $data;
+                $extra['some_data'] = \Yii::$app->someComponent->someMethod();
+                return $extra;
             }
         ],
     ],

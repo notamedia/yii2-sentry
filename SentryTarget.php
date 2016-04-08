@@ -30,9 +30,9 @@ class SentryTarget extends Target
      */
     public $context = true;
     /**
-     * @var callable Callback function that can modify context's array
+     * @var callable Callback function that can modify extra's array
      */
-    public $contextCallback;
+    public $extraCallback;
     /**
      * @var \Raven_Client
      */
@@ -80,9 +80,10 @@ class SentryTarget extends Target
 
             if ($this->context) {
                 $extra['context'] = parent::getContextMessage();
-                if (is_callable($this->contextCallback)) {
-                    $extra['context'] = call_user_func($this->contextCallback, $extra['context'], $context);
-                }
+            }
+
+            if (is_callable($this->extraCallback)) {
+                $extra = call_user_func($this->extraCallback, $extra, $context);
             }
 
             $data = [
