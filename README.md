@@ -48,6 +48,27 @@ Writing messages with extra data:
 ], 'category');
 ```
 
+### Extra callback
+
+`extraCallback` property can modify extra's data as callable function
+ 
+```php
+    'targets' => [
+        [
+            'class' => 'notamedia\sentry\SentryTarget',
+            'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.com/1',
+            'levels' => ['error', 'warning'],
+            'context' => true // Write the context information. The default is true.
+            'extraCallback' => function($context, $extra) {
+                // some manipulation with data
+                $extra['some_data'] = \Yii::$app->someComponent->someMethod();
+                return $extra;
+            }
+        ],
+    ],
+```
+
+
 ## Log levels
 
 Yii2 log levels converts to Sentry levels:
