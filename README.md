@@ -48,7 +48,7 @@ Writing messages with extra data:
 ], 'category');
 ```
 
-### Context callback
+### Extra callback
 
 `extraCallback` property can modify extra's data as callable function
  
