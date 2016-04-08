@@ -48,6 +48,27 @@ Writing messages with extra data:
 ], 'category');
 ```
 
+### Context callback
+
+`contextCallback` property can modify context data as callable function
+ 
+```php
+    'targets' => [
+        [
+            'class' => 'notamedia\sentry\SentryTarget',
+            'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.com/1',
+            'levels' => ['error', 'warning'],
+            'context' => true // Write the context information. The default is true.
+            'contextCallback' => function($data, $exception) {
+                // some manipulation with data
+                $data['some_data'] = \Yii::$app->someComponent->someMethod();
+                return $data;
+            }
+        ],
+    ],
+```
+
+
 ## Log levels
 
 Yii2 log levels converts to Sentry levels:
