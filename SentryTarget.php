@@ -66,7 +66,7 @@ class SentryTarget extends Target
             list($context, $level, $category, $timestamp, $traces) = $message;
             $extra = [];
 
-            if ($context instanceof \Exception) {
+            if ($context instanceof \Throwable || $context instanceof \Exception) {
                 $this->client->captureException($context);
                 $description = $context->getMessage();
             } elseif (isset($context['msg'])) {
