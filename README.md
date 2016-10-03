@@ -1,4 +1,4 @@
-# [Sentry](https://getsentry.com) logger for Yii2
+# [Sentry](https://sentry.io) logger for Yii2
 
 [![Build Status](https://travis-ci.org/notamedia/yii2-sentry.svg)](https://travis-ci.org/notamedia/yii2-sentry)
 [![Latest Stable Version](https://poser.pugx.org/notamedia/yii2-sentry/v/stable)](https://packagist.org/packages/notamedia/yii2-sentry) 
@@ -21,7 +21,7 @@ return [
 		    'targets' => [
 			    [
 				    'class' => 'notamedia\sentry\SentryTarget',
-				    'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.com/1',
+				    'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.io/1',
 				    'levels' => ['error', 'warning'],
 				    'context' => true // Write the context information. The default is true.
 			    ],
@@ -56,7 +56,7 @@ Writing messages with extra data:
     'targets' => [
         [
             'class' => 'notamedia\sentry\SentryTarget',
-            'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.com/1',
+            'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.io/1',
             'levels' => ['error', 'warning'],
             'context' => true // Write the context information. The default is true.
             'extraCallback' => function ($context, $extra) {
