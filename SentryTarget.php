@@ -1,8 +1,7 @@
 <?php
 /**
- * @link https://github.com/notamedia/yii2-sentry
- * @copyright Copyright © 2015 Notamedia Ltd.
- * @license MIT
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
  */
 
 namespace notamedia\sentry;
@@ -13,7 +12,7 @@ use yii\log\Target;
 /**
  * SentryTarget records log messages in a Sentry.
  *
- * @see https://getsentry.com
+ * @see https://sentry.io
  */
 class SentryTarget extends Target
 {
