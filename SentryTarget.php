@@ -33,6 +33,10 @@ class SentryTarget extends Target
      */
     public $extraCallback;
     /**
+     * @var array Default tags for event
+     */
+    public $defaultTags = [];
+    /**
      * @var \Raven_Client
      */
     protected $client;
@@ -64,13 +68,17 @@ class SentryTarget extends Target
     {
         foreach ($this->messages as $message) {
             list($context, $level, $category, $timestamp, $traces) = $message;
-            $extra = [];
+            $tags = $extra = [];
 
             if ($context instanceof \Throwable || $context instanceof \Exception) {
                 $this->client->captureException($context);
                 $description = $context->getMessage();
             } elseif (isset($context['msg'])) {
                 $description = $context['msg'];
+                if (isset($context['tags'])) {
+                    $tags = $context['tags'];
+                    unset($context['tags']);
+                }
                 $extra = $context;
                 unset($extra['msg']);
             } else {
@@ -90,9 +98,8 @@ class SentryTarget extends Target
                 'timestamp' => $timestamp,
                 'message' => $description,
                 'extra' => $extra,
-                'tags' => [
-                    'category' => $category
-                ]
+                'tags' => array_merge($tags, ['category' => $category],
+                    is_array($this->defaultTags) ? $this->defaultTags : [])
             ];
 
             $this->client->capture($data, $traces);
