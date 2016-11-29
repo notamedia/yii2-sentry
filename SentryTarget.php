@@ -33,10 +33,6 @@ class SentryTarget extends Target
      */
     public $extraCallback;
     /**
-     * @var array Default tags for event
-     */
-    public $defaultTags = [];
-    /**
      * @var \Raven_Client
      */
     protected $client;
@@ -98,8 +94,7 @@ class SentryTarget extends Target
                 'timestamp' => $timestamp,
                 'message' => $description,
                 'extra' => $extra,
-                'tags' => array_merge($tags, ['category' => $category],
-                    is_array($this->defaultTags) ? $this->defaultTags : [])
+                'tags' => array_merge($tags, ['category' => $category])
             ];
 
             $this->client->capture($data, $traces);

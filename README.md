@@ -70,21 +70,6 @@ Writing messages with extra data:
 
 ### Tags
 
-`defaultTags` property adding default tags for each message:
-
-```php
-    'targets' => [
-        [
-            'class' => 'notamedia\sentry\SentryTarget',
-            'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.io/1',
-            'defaultTags' => [
-                'tagName' => 'tagValue',
-            ],
-            'levels' => ['error', 'warning'],
-        ],
-    ],
-```
-
 Writing messages with extra tags:
 
 ```php
