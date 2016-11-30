@@ -68,6 +68,23 @@ Writing messages with extra data:
     ],
 ```
 
+### Tags
+
+Writing messages with additional tags. If need to add additional tags for event, add `tags` key in message. Tags are various key/value pairs that get assigned to an event, and can later be used as a breakdown or quick access to finding related events.
+
+Example:
+
+```php
+\Yii::warning([
+    'msg' => message',
+    'extra' => 'value',
+    'tags' => [
+        'extraTagKey' => 'extraTagValue',
+    ]
+], 'category');
+```
+
+More about tags see https://docs.sentry.io/learn/context/#tagging-events
 
 ## Log levels
 
