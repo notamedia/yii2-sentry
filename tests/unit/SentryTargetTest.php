@@ -28,7 +28,7 @@ class SentryTargetTest extends TestCase
 
         $sentryTarget = new SentryTarget();
         $result = $method->invokeArgs($sentryTarget, []);
-        
+
         $this->assertEmpty($result);
     }
 
@@ -37,7 +37,8 @@ class SentryTargetTest extends TestCase
      * - returns level name for each logger level
      * @see SentryTarget::getLevelName
      */
-    public function testLogLevels() {
+    public function testLogLevels()
+    {
         //valid level names
         $levelNames = [
             'info',
@@ -48,7 +49,7 @@ class SentryTargetTest extends TestCase
 
         $loggerClass = new ReflectionClass(Logger::className());
         $loggerLevelConstants = $loggerClass->getConstants();
-        foreach($loggerLevelConstants as $constant => $value) {
+        foreach ($loggerLevelConstants as $constant => $value) {
             if (strpos($constant, 'LEVEL_') === 0) {
                 $level = SentryTarget::getLevelName($value);
                 $this->assertNotEmpty($level);
@@ -65,7 +66,8 @@ class SentryTargetTest extends TestCase
      * @see SentryTarget::collect
      * @see SentryTarget::export
      */
-    public function testCollectAndExport() {
+    public function testCollectAndExport()
+    {
         //test messages
         $messages = [
             ['test', Logger::LEVEL_INFO, 'test', microtime(true), []],
@@ -84,15 +86,28 @@ class SentryTargetTest extends TestCase
 
         $sentryTarget->collect($messages, false);
         $this->assertEquals(count($messages), count($sentryTarget->messages));
-        
+
         $this->assertInstanceOf('Raven_Client', $clientProperty->getValue($sentryTarget));
 
         //create Raven_Client mock
-        $clientMock = $this->getMock('Raven_Client');
+        $clientMock = $this->getMockCompatible('Raven_Client');
         $clientMock->expects($this->exactly(count($messages)))->method('capture');
         $clientProperty->setValue($sentryTarget, $clientMock);
-        
+
         $sentryTarget->export();
+    }
+
+    /**
+     * Compatible version of creating mock
+     * 
+     * @param string $className
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getMockCompatible($className)
+    {
+        return method_exists($this, 'createMock') ?
+            self::createMock($className) :
+            $this->getMock($className);
     }
 
 }
