@@ -85,10 +85,10 @@ class SentryTargetTest extends TestCase
         $sentryTarget->collect($messages, false);
         $this->assertEquals(count($messages), count($sentryTarget->messages));
         
-        $this->assertInstanceOf(\Raven_Client::class, $clientProperty->getValue($sentryTarget));
+        $this->assertInstanceOf('Raven_Client', $clientProperty->getValue($sentryTarget));
 
         //create Raven_Client mock
-        $clientMock = self::createMock(\Raven_Client::class);
+        $clientMock = $this->getMock('Raven_Client');
         $clientMock->expects($this->exactly(count($messages)))->method('capture');
         $clientProperty->setValue($sentryTarget, $clientMock);
         
