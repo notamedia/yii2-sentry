@@ -15,6 +15,12 @@ class SentryTargetTest extends TestCase
     /** @var string */
     public $appConfig = '@tests/unit/config.php';
 
+    /** @var array test messages */
+    protected $messages = [
+        ['test', Logger::LEVEL_INFO, 'test', 1481513561.197593, []],
+        ['test 2', Logger::LEVEL_INFO, 'test 2', 1481513572.867054, []]
+    ];
+
     /**
      * Testing method getContextMessage()
      * - returns empty string ''
@@ -59,47 +65,80 @@ class SentryTargetTest extends TestCase
     }
 
     /**
-     * Testing methods collect() and export()
+     * Testing method collect()
      * - assigns messages to Target property
      * - creates Raven_Client object
-     * - Raven_Client::capture is called on export()
      * @see SentryTarget::collect
+     */
+    public function testCollect()
+    {
+        $sentryTarget = $this->getConfiguredSentryTarget();
+        $clientProperty = $this->getAccessibleClientProperty($sentryTarget);
+
+        $sentryTarget->collect($this->messages, false);
+        $this->assertEquals(count($this->messages), count($sentryTarget->messages));
+        $this->assertInstanceOf('Raven_Client', $clientProperty->getValue($sentryTarget));
+    }
+
+    /**
+     * Testing method export()
+     * - Raven_Client::capture is called on collect([...], true)
+     * - messages stack is cleaned on  collect([...], true)
+     * - Raven_Client::capture is called on export()
      * @see SentryTarget::export
      */
-    public function testCollectAndExport()
+    public function testExport()
     {
-        //test messages
-        $messages = [
-            ['test', Logger::LEVEL_INFO, 'test', microtime(true), []],
-            ['test 2', Logger::LEVEL_INFO, 'test 2', microtime(true), []]
-        ];
+        $sentryTarget = $this->getConfiguredSentryTarget();
+        $clientProperty = $this->getAccessibleClientProperty($sentryTarget);
 
-        //configure target
+        //set Raven_Client mock on 'client' property
+        $clientMock = $this->getMockCompatible('Raven_Client');
+        $clientMock->expects($this->exactly(count($this->messages) * 2))->method('capture');
+        $clientProperty->setValue($sentryTarget, $clientMock);
+
+        //test calling client and clearing messages on final collect
+        $sentryTarget->collect($this->messages, true);        
+        $this->assertEmpty($sentryTarget->messages);
+
+        //add messages and test simple export() method
+        $sentryTarget->collect($this->messages, false);
+        $sentryTarget->export();
+        $this->assertEquals(count($this->messages), count($sentryTarget->messages));
+    }
+
+    /**
+     * Returns configured SentryTarget object
+     *
+     * @return SentryTarget
+     * @throws \yii\base\InvalidConfigException
+     */
+    protected function getConfiguredSentryTarget()
+    {
         $sentryTarget = new SentryTarget();
         $sentryTarget->exportInterval = 100;
         $sentryTarget->setLevels(Logger::LEVEL_INFO);
 
-        //set client property accessible
-        $sentryTargetClass = new ReflectionClass(SentryTarget::className());
-        $clientProperty = $sentryTargetClass->getProperty('client');
-        $clientProperty->setAccessible(true);
-
-        $sentryTarget->collect($messages, false);
-        $this->assertEquals(count($messages), count($sentryTarget->messages));
-
-        $this->assertInstanceOf('Raven_Client', $clientProperty->getValue($sentryTarget));
-
-        //create Raven_Client mock
-        $clientMock = $this->getMockCompatible('Raven_Client');
-        $clientMock->expects($this->exactly(count($messages)))->method('capture');
-        $clientProperty->setValue($sentryTarget, $clientMock);
-
-        $sentryTarget->export();
+        return $sentryTarget;
     }
 
     /**
-     * Compatible version of creating mock
-     * 
+     * Returns reflected 'client' property
+     *
+     * @param SentryTarget $sentryTarget
+     * @return \ReflectionProperty
+     */
+    protected function getAccessibleClientProperty(SentryTarget $sentryTarget) {
+        $sentryTargetClass = new ReflectionClass($sentryTarget::className());
+        $clientProperty = $sentryTargetClass->getProperty('client');
+        $clientProperty->setAccessible(true);
+        
+        return $clientProperty;
+    }
+
+    /**
+     * Compatible version of creating mock method
+     *
      * @param string $className
      * @return \PHPUnit_Framework_MockObject_MockObject
      */
