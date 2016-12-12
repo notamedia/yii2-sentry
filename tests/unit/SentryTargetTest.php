@@ -26,7 +26,7 @@ class SentryTargetTest extends TestCase
      * - returns empty string ''
      * @see SentryTarget::getContextMessage
      */
-    public function testContextMessageShouldBeEmpty()
+    public function testGetContextMessage()
     {
         $class = new ReflectionClass(SentryTarget::className());
         $method = $class->getMethod('getContextMessage');
@@ -43,7 +43,7 @@ class SentryTargetTest extends TestCase
      * - returns level name for each logger level
      * @see SentryTarget::getLevelName
      */
-    public function testLogLevels()
+    public function testGetLevelName()
     {
         //valid level names
         $levelNames = [
@@ -62,6 +62,10 @@ class SentryTargetTest extends TestCase
                 $this->assertTrue(in_array($level, $levelNames), sprintf('Level "%s" is incorrect', $level));
             }
         }
+        
+        //check default level name
+        $this->assertEquals('error', SentryTarget::getLevelName(''));
+        $this->assertEquals('error', SentryTarget::getLevelName('somerandomstring' . uniqid()));
     }
 
     /**
