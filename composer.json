@@ -19,7 +19,7 @@
   },
   "autoload": {
     "psr-4": {
-      "notamedia\\sentry\\": ""
+      "notamedia\\sentry\\": "src"
     }
   }
 }
