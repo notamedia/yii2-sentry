@@ -1,5 +1,10 @@
 # Change log
 
+## 1.2.1 - 2017-01-28
+### Added
+* Unit tests.
+* Change log.
+
 ## 1.2.0 - 2016-11-30
 ### Added
 * Added supporting tags in messages.
