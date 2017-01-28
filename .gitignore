@@ -3,3 +3,4 @@
 /vendor
 codecept.phar
 composer.lock
+tests/_output/*

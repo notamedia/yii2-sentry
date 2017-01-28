@@ -2,15 +2,15 @@
 
 namespace notamedia\relation\tests\unit;
 
+use Codeception\Test\Unit;
 use notamedia\sentry\SentryTarget;
 use ReflectionClass;
-use yii\codeception\TestCase;
 use yii\log\Logger;
 
 /**
  * Unit-tests for SentryTarget
  */
-class SentryTargetTest extends TestCase
+class SentryTargetTest extends Unit
 {
     /** @var string */
     public $appConfig = '@tests/unit/config.php';

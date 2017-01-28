@@ -6,9 +6,13 @@ paths:
     support: tests/_support
     envs: tests/_envs
 settings:
-    bootstrap: bootstrap.php
+    bootstrap: _bootstrap.php
     colors: false
     memory_limit: 1024M
 extensions:
     enabled:
         - Codeception\Extension\RunFailed
+modules:
+    config:
+        Yii2:
+            configFile: 'tests/unit/config.php'
