@@ -33,6 +33,10 @@ class SentryTarget extends Target
      */
     public $extraCallback;
     /**
+     * @var string
+     */
+    public $exceptionKey = 'exception';
+    /**
      * @var \Raven_Client
      */
     protected $client;
@@ -96,8 +100,28 @@ class SentryTarget extends Target
                 'extra' => $extra,
                 'tags' => array_merge($tags, ['category' => $category])
             ];
+            
+            if ($exception = $this->extractException($data['extra'])) {
+                $this->client->captureException($exception, $data);
+            } else {
+                $this->client->capture($data, $traces);
+            }
+        }
+    }
 
-            $this->client->capture($data, $traces);
+    /**
+     * Take and remove the exception out of context of the message.
+     * 
+     * @param array $context
+     * @return \Throwable|\Exception|null
+     */
+    protected function extractException(array &$context)
+    {
+        if (isset($context[$this->exceptionKey]) && 
+            ($context[$this->exceptionKey] instanceof \Throwable || $context[$this->exceptionKey] instanceof \Exception)) {
+            $exception = $context[$this->exceptionKey];
+            unset($context[$this->exceptionKey]);
+            return $exception;
         }
     }
 
