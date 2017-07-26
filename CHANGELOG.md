@@ -1,5 +1,10 @@
 # Change log
 
+## 1.3.0 - 2017-07-26
+### Changed
+* Smart exception handling.
+* Unsupported HHMV.
+
 ## 1.2.1 - 2017-01-28
 ### Added
 * Unit tests.
