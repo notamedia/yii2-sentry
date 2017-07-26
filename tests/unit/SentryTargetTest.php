@@ -1,6 +1,6 @@
 <?php
 
-namespace notamedia\relation\tests\unit;
+namespace notamedia\sentry\tests\unit;
 
 use Codeception\Test\Unit;
 use notamedia\sentry\SentryTarget;

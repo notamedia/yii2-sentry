@@ -1,6 +1,4 @@
 /.idea
-/tests/_output/*
 /vendor
 codecept.phar
 composer.lock
-tests/_output/*

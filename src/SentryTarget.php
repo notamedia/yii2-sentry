@@ -6,6 +6,7 @@
 
 namespace notamedia\sentry;
 
+use yii\helpers\ArrayHelper;
 use yii\log\Logger;
 use yii\log\Target;
 
@@ -17,7 +18,7 @@ use yii\log\Target;
 class SentryTarget extends Target
 {
     /**
-     * @var string Client key.
+     * @var string Sentry client key.
      */
     public $dsn;
     /**
@@ -33,16 +34,12 @@ class SentryTarget extends Target
      */
     public $extraCallback;
     /**
-     * @var string
-     */
-    public $exceptionKey = 'exception';
-    /**
      * @var \Raven_Client
      */
     protected $client;
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function collect($messages, $final)
     {
@@ -54,7 +51,7 @@ class SentryTarget extends Target
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     protected function getContextMessage()
     {
@@ -62,46 +59,47 @@ class SentryTarget extends Target
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function export()
     {
         foreach ($this->messages as $message) {
-            list($context, $level, $category, $timestamp, $traces) = $message;
-            $tags = $extra = [];
-
-            if ($context instanceof \Throwable || $context instanceof \Exception) {
-                $this->client->captureException($context);
-                $description = $context->getMessage();
-            } elseif (isset($context['msg'])) {
-                $description = $context['msg'];
-                if (isset($context['tags'])) {
-                    $tags = $context['tags'];
-                    unset($context['tags']);
-                }
-                $extra = $context;
-                unset($extra['msg']);
-            } else {
-                $description = $context;
-            }
-
-            if ($this->context) {
-                $extra['context'] = parent::getContextMessage();
-            }
-
-            if (is_callable($this->extraCallback)) {
-                $extra = call_user_func($this->extraCallback, $context, $extra);
-            }
+            list($text, $level, $category, $timestamp, $traces) = $message;
 
             $data = [
                 'level' => static::getLevelName($level),
                 'timestamp' => $timestamp,
-                'message' => $description,
-                'extra' => $extra,
-                'tags' => array_merge($tags, ['category' => $category])
+                'tags' => ['category' => $category]
             ];
+
+            if ($text instanceof \Throwable || $text instanceof \Exception) {
+                $this->client->captureException($text, $data);
+                return;
+            } elseif (is_array($text)) {
+                if (isset($text['msg'])) {
+                    $data['message'] = $text['msg'];
+                    unset($text['msg']);
+                }
+                
+                if (isset($text['tags'])) {
+                    $data['tags'] = ArrayHelper::merge($data['tags'], $text['tags']);
+                    unset($text['tags']);
+                }
+                
+                $data['extra'] = $text;
+            } else {
+                $data['message'] = $text;
+            }
+
+            if ($this->context) {
+                $data['extra']['context'] = parent::getContextMessage();
+            }
+
+            if (is_callable($this->extraCallback) && isset($data['extra'])) {
+                $data['extra'] = call_user_func($this->extraCallback, $text, $data['extra']);
+            }
             
-            if ($exception = $this->extractException($data['extra'])) {
+            if (isset($data['extra']) && $exception = $this->extractException($data['extra'])) {
                 $this->client->captureException($exception, $data);
             } else {
                 $this->client->capture($data, $traces);
@@ -112,16 +110,16 @@ class SentryTarget extends Target
     /**
      * Take and remove the exception out of context of the message.
      * 
-     * @param array $context
-     * @return \Throwable|\Exception|null
+     * @param array $extra Extra data from message.
+     * @return null|\Throwable|\Exception
      */
-    protected function extractException(array &$context)
+    protected function extractException(array &$extra)
     {
-        if (isset($context[$this->exceptionKey]) && 
-            ($context[$this->exceptionKey] instanceof \Throwable || $context[$this->exceptionKey] instanceof \Exception)) {
-            $exception = $context[$this->exceptionKey];
-            unset($context[$this->exceptionKey]);
-            return $exception;
+        foreach ($extra as $key => $value) {
+            if ($value instanceof \Throwable || $value instanceof \Exception) {
+                unset($extra[$key]);
+                return $value;
+            }
         }
     }
 
