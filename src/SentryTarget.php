@@ -99,27 +99,7 @@ class SentryTarget extends Target
                 $data['extra'] = call_user_func($this->extraCallback, $text, $data['extra']);
             }
             
-            if (isset($data['extra']) && $exception = $this->extractException($data['extra'])) {
-                $this->client->captureException($exception, $data);
-            } else {
-                $this->client->capture($data, $traces);
-            }
-        }
-    }
-
-    /**
-     * Take and remove the exception out of context of the message.
-     * 
-     * @param array $extra Extra data from message.
-     * @return null|\Throwable|\Exception
-     */
-    protected function extractException(array &$extra)
-    {
-        foreach ($extra as $key => $value) {
-            if ($value instanceof \Throwable || $value instanceof \Exception) {
-                unset($extra[$key]);
-                return $value;
-            }
+            $this->client->capture($data, $traces);
         }
     }
 

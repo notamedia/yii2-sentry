@@ -1,8 +1,8 @@
 # Change log
 
-## 1.3.0 - 2017-07-26
+## 1.3.0 - 2017-08-24
 ### Changed
-* Smart exception handling.
+* Exception handling refactoring.
 * Unsupported HHMV.
 
 ## 1.2.1 - 2017-01-28
