@@ -43,8 +43,8 @@ Writing messages with extra data:
 
 ```php
 \Yii::warning([
-    'msg' => message',
-    'extra' => 'value'
+    'msg' => 'message',
+    'extra' => 'value',
 ], 'category');
 ```
 
