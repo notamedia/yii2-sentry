@@ -76,7 +76,7 @@ Example:
 
 ```php
 \Yii::warning([
-    'msg' => message',
+    'msg' => 'message',
     'extra' => 'value',
     'tags' => [
         'extraTagKey' => 'extraTagValue',
