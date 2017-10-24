@@ -43,8 +43,8 @@ Writing messages with extra data:
 
 ```php
 \Yii::warning([
-    'msg' => message',
-    'extra' => 'value'
+    'msg' => 'message',
+    'extra' => 'value',
 ], 'category');
 ```
 
@@ -58,7 +58,7 @@ Writing messages with extra data:
             'class' => 'notamedia\sentry\SentryTarget',
             'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.io/1',
             'levels' => ['error', 'warning'],
-            'context' => true // Write the context information. The default is true.
+            'context' => true, // Write the context information. The default is true.
             'extraCallback' => function ($message, $extra) {
                 // some manipulation with data
                 $extra['some_data'] = \Yii::$app->someComponent->someMethod();
@@ -76,7 +76,7 @@ Example:
 
 ```php
 \Yii::warning([
-    'msg' => message',
+    'msg' => 'message',
     'extra' => 'value',
     'tags' => [
         'extraTagKey' => 'extraTagValue',
