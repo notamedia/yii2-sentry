@@ -64,12 +64,13 @@ class SentryTarget extends Target
     public function export()
     {
         foreach ($this->messages as $message) {
-            list($text, $level, $category, $timestamp, $traces) = $message;
+
+            list($level,$text, $other) = $message;
 
             $data = [
                 'level' => static::getLevelName($level),
-                'timestamp' => $timestamp,
-                'tags' => ['category' => $category]
+                'timestamp' => $other['time'],
+                'tags' => ['category' => $other['category']]
             ];
 
             if ($text instanceof \Throwable || $text instanceof \Exception) {
@@ -99,7 +100,8 @@ class SentryTarget extends Target
                 $data['extra'] = call_user_func($this->extraCallback, $text, $data['extra']);
             }
 
-            $this->client->capture($data, $traces);
+
+            $this->client->capture($data, $other['exception']->getTrace());
         }
     }
 
