@@ -15,7 +15,7 @@
     "sentry/sentry": "^1.1"
   },
   "require-dev": {
-    "codeception/codeception": "^2.2"
+    "codeception/codeception": "^2.4"
   },
   "autoload": {
     "psr-4": {
