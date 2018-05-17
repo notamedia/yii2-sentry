@@ -7,8 +7,8 @@
 namespace notamedia\sentry;
 
 use yii\helpers\ArrayHelper;
-use yii\log\Logger;
 use yii\log\Target;
+use Psr\Log\LogLevel;
 
 /**
  * SentryTarget records log messages in a Sentry.
@@ -80,12 +80,12 @@ class SentryTarget extends Target
                     $data['message'] = $text['msg'];
                     unset($text['msg']);
                 }
-                
+
                 if (isset($text['tags'])) {
                     $data['tags'] = ArrayHelper::merge($data['tags'], $text['tags']);
                     unset($text['tags']);
                 }
-                
+
                 $data['extra'] = $text;
             } else {
                 $data['message'] = $text;
@@ -98,7 +98,7 @@ class SentryTarget extends Target
             if (is_callable($this->extraCallback) && isset($data['extra'])) {
                 $data['extra'] = call_user_func($this->extraCallback, $text, $data['extra']);
             }
-            
+
             $this->client->capture($data, $traces);
         }
     }
@@ -112,12 +112,14 @@ class SentryTarget extends Target
     public static function getLevelName($level)
     {
         static $levels = [
-            Logger::LEVEL_ERROR => 'error',
-            Logger::LEVEL_WARNING => 'warning',
-            Logger::LEVEL_INFO => 'info',
-            Logger::LEVEL_TRACE => 'debug',
-            Logger::LEVEL_PROFILE_BEGIN => 'debug',
-            Logger::LEVEL_PROFILE_END => 'debug',
+            LogLevel::DEBUG     => \Raven_Client::DEBUG,
+            LogLevel::INFO      => \Raven_Client::INFO,
+            LogLevel::NOTICE    => \Raven_Client::INFO,
+            LogLevel::WARNING   => \Raven_Client::WARNING,
+            LogLevel::ERROR     => \Raven_Client::ERROR,
+            LogLevel::CRITICAL  => \Raven_Client::FATAL,
+            LogLevel::ALERT     => \Raven_Client::FATAL,
+            LogLevel::EMERGENCY => \Raven_Client::FATAL,
         ];
 
         return isset($levels[$level]) ? $levels[$level] : 'error';

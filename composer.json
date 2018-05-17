@@ -6,9 +6,12 @@
     "yii2"
   ],
   "type": "yii2-extension",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "license": "MIT",
   "require": {
-    "yiisoft/yii2": "~2.0",
+    "php": ">=7.1.0",
+    "yiisoft/yii2": "~2.1",
     "sentry/sentry": "^1.1"
   },
   "require-dev": {
