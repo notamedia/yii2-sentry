@@ -6,6 +6,7 @@ use Codeception\Test\Unit;
 use notamedia\sentry\SentryTarget;
 use ReflectionClass;
 use yii\log\Logger;
+use Psr\Log\LogLevel;
 
 /**
  * Unit-tests for SentryTarget
@@ -17,8 +18,8 @@ class SentryTargetTest extends Unit
 
     /** @var array test messages */
     protected $messages = [
-        ['test', Logger::LEVEL_INFO, 'test', 1481513561.197593, []],
-        ['test 2', Logger::LEVEL_INFO, 'test 2', 1481513572.867054, []]
+        ['test', LogLevel::INFO, 'test', 1481513561.197593, []],
+        ['test 2', LogLevel::INFO, 'test 2', 1481513572.867054, []]
     ];
 
     /**
@@ -28,7 +29,7 @@ class SentryTargetTest extends Unit
      */
     public function testGetContextMessage()
     {
-        $class = new ReflectionClass(SentryTarget::className());
+        $class = new ReflectionClass(SentryTarget::class);
         $method = $class->getMethod('getContextMessage');
         $method->setAccessible(true);
 
@@ -53,7 +54,7 @@ class SentryTargetTest extends Unit
             'debug',
         ];
 
-        $loggerClass = new ReflectionClass(Logger::className());
+        $loggerClass = new ReflectionClass(Logger::class);
         $loggerLevelConstants = $loggerClass->getConstants();
         foreach ($loggerLevelConstants as $constant => $value) {
             if (strpos($constant, 'LEVEL_') === 0) {
@@ -121,7 +122,6 @@ class SentryTargetTest extends Unit
     {
         $sentryTarget = new SentryTarget();
         $sentryTarget->exportInterval = 100;
-        $sentryTarget->setLevels(Logger::LEVEL_INFO);
 
         return $sentryTarget;
     }
@@ -133,7 +133,7 @@ class SentryTargetTest extends Unit
      * @return \ReflectionProperty
      */
     protected function getAccessibleClientProperty(SentryTarget $sentryTarget) {
-        $sentryTargetClass = new ReflectionClass($sentryTarget::className());
+        $sentryTargetClass = new ReflectionClass($sentryTarget);
         $clientProperty = $sentryTargetClass->getProperty('client');
         $clientProperty->setAccessible(true);
         
