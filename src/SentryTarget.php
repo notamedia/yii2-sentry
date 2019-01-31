@@ -73,8 +73,9 @@ class SentryTarget extends Target
             ];
 
             if ($text instanceof \Throwable || $text instanceof \Exception) {
+				$data = $this->runExtraCallback($text, $data);
                 $this->client->captureException($text, $data);
-                return;
+				continue;
             } elseif (is_array($text)) {
                 if (isset($text['msg'])) {
                     $data['message'] = $text['msg'];
@@ -95,13 +96,27 @@ class SentryTarget extends Target
                 $data['extra']['context'] = parent::getContextMessage();
             }
 
-            if (is_callable($this->extraCallback) && isset($data['extra'])) {
-                $data['extra'] = call_user_func($this->extraCallback, $text, $data['extra']);
-            }
-            
+			$data = $this->runExtraCallback($text, $data);
+
             $this->client->capture($data, $traces);
         }
     }
+
+	/**
+	 * Calls the extra callback if it exists
+	 *
+	 * @param $text
+	 * @param $data
+	 * @return array
+	 */
+    public function runExtraCallback($text, $data)
+	{
+		if (is_callable($this->extraCallback)) {
+			$data['extra'] = call_user_func($this->extraCallback, $text, $data['extra'] ? $data['extra'] : []);
+		}
+
+		return $data;
+	}
 
     /**
      * Returns the text display of the specified level for the Sentry.
