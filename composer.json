@@ -7,6 +7,7 @@
   ],
   "type": "yii2-extension",
   "license": "MIT",
+  "prefer-stable": true,
   "require": {
     "yiisoft/yii2": "~2.0",
     "sentry/sentry": "^1.1"
