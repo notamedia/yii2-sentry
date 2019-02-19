@@ -8,6 +8,10 @@
   "type": "yii2-extension",
   "license": "MIT",
   "prefer-stable": true,
+  "config": {
+    "preferred-install": "dist",
+    "process-timeout": 1800
+  },
   "require": {
     "yiisoft/yii2": "~2.0",
     "sentry/sentry": "^1.1"
