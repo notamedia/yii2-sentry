@@ -1,0 +1,8 @@
+class_name: E2eTester
+modules:
+  config:
+    Yii2:
+      configFile: 'tests/e2e/config.php'
+  enabled:
+    - Yii2
+    - Asserts
