@@ -7,6 +7,9 @@ use yii\log\Logger;
 
 class SentryController extends Controller
 {
+    /**
+     * Send test messages to the Sentry.
+     */
     public function actionFill()
     {
         /* @var $logger \yii\log\Logger */
