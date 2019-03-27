@@ -12,9 +12,6 @@ use yii\log\Logger;
  */
 class SentryTargetTest extends Unit
 {
-    /** @var string */
-    public $appConfig = '@tests/unit/config.php';
-
     /** @var array test messages */
     protected $messages = [
         ['test', Logger::LEVEL_INFO, 'test', 1481513561.197593, []],
@@ -62,7 +59,7 @@ class SentryTargetTest extends Unit
                 $this->assertTrue(in_array($level, $levelNames), sprintf('Level "%s" is incorrect', $level));
             }
         }
-        
+
         //check default level name
         $this->assertEquals('error', SentryTarget::getLevelName(''));
         $this->assertEquals('error', SentryTarget::getLevelName('somerandomstring' . uniqid()));
@@ -102,7 +99,7 @@ class SentryTargetTest extends Unit
         $clientProperty->setValue($sentryTarget, $clientMock);
 
         //test calling client and clearing messages on final collect
-        $sentryTarget->collect($this->messages, true);        
+        $sentryTarget->collect($this->messages, true);
         $this->assertEmpty($sentryTarget->messages);
 
         //add messages and test simple export() method
@@ -136,7 +133,7 @@ class SentryTargetTest extends Unit
         $sentryTargetClass = new ReflectionClass($sentryTarget::className());
         $clientProperty = $sentryTargetClass->getProperty('client');
         $clientProperty->setAccessible(true);
-        
+
         return $clientProperty;
     }
 

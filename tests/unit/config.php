@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'id' => 'app-tests',
+    'id' => 'sentry-tests',
     'class' => 'yii\console\Application',
     'basePath' => \Yii::getAlias('@tests'),
     'runtimePath' => \Yii::getAlias('@tests/_output'),
