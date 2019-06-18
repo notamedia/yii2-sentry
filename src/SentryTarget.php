@@ -22,7 +22,7 @@ class SentryTarget extends Target
      */
     public $dsn;
     /**
-     * @var array Options of the \Raven_Client.
+     * @var array Options of the \Sentry.
      */
     public $clientOptions = [];
     /**
@@ -34,7 +34,7 @@ class SentryTarget extends Target
      */
     public $extraCallback;
     /**
-     * @var \Raven_Client
+     * @var \Sentry
      */
     protected $client;
 
@@ -43,9 +43,7 @@ class SentryTarget extends Target
      */
     public function collect($messages, $final)
     {
-        if (!isset($this->client)) {
-            $this->client = new \Raven_Client($this->dsn, $this->clientOptions);
-        }
+        \Sentry\init(['dsn' => 'https://19b9301150d94282a02564bdedceeb93@sentry.io/1485154']);
 
         parent::collect($messages, $final);
     }
@@ -74,19 +72,24 @@ class SentryTarget extends Target
 
             if ($text instanceof \Throwable || $text instanceof \Exception) {
                 $data = $this->runExtraCallback($text, $data);
-                $this->client->captureException($text, $data);
+                \Sentry\captureException($text, $data);
                 continue;
             } elseif (is_array($text)) {
                 if (isset($text['msg'])) {
                     $data['message'] = $text['msg'];
                     unset($text['msg']);
                 }
-                
+
                 if (isset($text['tags'])) {
                     $data['tags'] = ArrayHelper::merge($data['tags'], $text['tags']);
+                    \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($data): void {
+                        foreach ($data['tags'] as $key => $value) {
+                            $scope->setTag($key, $value);
+                        }
+                    });
                     unset($text['tags']);
                 }
-                
+
                 $data['extra'] = $text;
             } else {
                 $data['message'] = $text;
@@ -94,11 +97,18 @@ class SentryTarget extends Target
 
             if ($this->context) {
                 $data['extra']['context'] = parent::getContextMessage();
+                // \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($data): void {
+                //     var_dump($data['extra']['context']);
+                //     exit();
+                //     foreach ($data['extra']['context'] as $key => $value) {
+                //         $scope->setExtra($key, $value);
+                //     }
+                // });
             }
 
             $data = $this->runExtraCallback($text, $data);
-
-            $this->client->capture($data, $traces);
+            // exit();
+            \Sentry\captureMessage($data['message']);
         }
     }
 
