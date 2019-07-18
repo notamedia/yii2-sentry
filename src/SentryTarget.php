@@ -97,17 +97,9 @@ class SentryTarget extends Target
 
             if ($this->context) {
                 $data['extra']['context'] = parent::getContextMessage();
-                // \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($data): void {
-                //     var_dump($data['extra']['context']);
-                //     exit();
-                //     foreach ($data['extra']['context'] as $key => $value) {
-                //         $scope->setExtra($key, $value);
-                //     }
-                // });
             }
 
             $data = $this->runExtraCallback($text, $data);
-            // exit();
             \Sentry\captureMessage($data['message']);
         }
     }

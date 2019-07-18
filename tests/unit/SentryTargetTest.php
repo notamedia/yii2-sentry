@@ -74,11 +74,9 @@ class SentryTargetTest extends Unit
     public function testCollect()
     {
         $sentryTarget = $this->getConfiguredSentryTarget();
-        $clientProperty = $this->getAccessibleClientProperty($sentryTarget);
 
         $sentryTarget->collect($this->messages, false);
         $this->assertEquals(count($this->messages), count($sentryTarget->messages));
-        $this->assertInstanceOf('Sentry', $clientProperty->getValue($sentryTarget));
     }
 
     /**
@@ -91,12 +89,6 @@ class SentryTargetTest extends Unit
     public function testExport()
     {
         $sentryTarget = $this->getConfiguredSentryTarget();
-        $clientProperty = $this->getAccessibleClientProperty($sentryTarget);
-
-        //set Sentry mock on 'client' property
-        $clientMock = $this->getMockCompatible('Sentry');
-        $clientMock->expects($this->exactly(count($this->messages) * 2))->method('capture');
-        $clientProperty->setValue($sentryTarget, $clientMock);
 
         //test calling client and clearing messages on final collect
         $sentryTarget->collect($this->messages, true);
@@ -119,7 +111,6 @@ class SentryTargetTest extends Unit
         $sentryTarget = new SentryTarget();
         $sentryTarget->exportInterval = 100;
         $sentryTarget->setLevels(Logger::LEVEL_INFO);
-
         return $sentryTarget;
     }
 
@@ -131,8 +122,8 @@ class SentryTargetTest extends Unit
      */
     protected function getAccessibleClientProperty(SentryTarget $sentryTarget)
     {
-        $sentryTargetClass = new ReflectionClass($sentryTarget::className());
-        $clientProperty = $sentryTargetClass->getProperty('client');
+        $sentryTargetClass = new ReflectionClass("\Sentry\Client");
+        $clientProperty = $sentryTargetClass->getProperty('transport');
         $clientProperty->setAccessible(true);
 
         return $clientProperty;
