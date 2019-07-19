@@ -43,7 +43,7 @@ class SentryTarget extends Target
      */
     public function collect($messages, $final)
     {
-        \Sentry\init(['dsn' => 'https://19b9301150d94282a02564bdedceeb93@sentry.io/1485154']);
+        \Sentry\init(['dsn' => $this->dsn]);
 
         parent::collect($messages, $final);
     }
