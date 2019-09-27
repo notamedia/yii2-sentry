@@ -1,5 +1,12 @@
 # Change log
 
+## 1.4.0 - 2019-09-27
+### Changed
+Used sentry/sdk 2.0 package.
+
+### Fixed
+Fixed error with `extraCallback` property.
+
 ## 1.3.0 - 2017-08-24
 ### Changed
 * Exception handling refactoring.
