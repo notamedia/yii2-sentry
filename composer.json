@@ -7,21 +7,23 @@
   ],
   "type": "yii2-extension",
   "license": "MIT",
-  "prefer-stable": true,
-  "config": {
-    "preferred-install": "dist",
-    "process-timeout": 1800
-  },
   "require": {
-    "yiisoft/yii2": "~2.0",
-    "sentry/sentry": "^1.1"
+    "php": "^7.1",
+    "yiisoft/yii2": "^2.0",
+    "sentry/sdk": "^2.0"
   },
   "require-dev": {
-    "codeception/codeception": "^2.2"
+    "codeception/codeception": "^3.0"
   },
   "autoload": {
     "psr-4": {
       "notamedia\\sentry\\": "src"
     }
-  }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ]
 }
