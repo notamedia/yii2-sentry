@@ -91,6 +91,15 @@ class SentryTarget extends Target
                 }
 
                 $data['extra'] = $text;
+                
+                if (!empty($data['extra'])) {
+                    \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($data): void {
+                        foreach ($data['extra'] as $key => $value) {
+                            $scope->setExtra((string)$key, $value);
+                        }
+                    });
+                }
+                
             } else {
                 $data['message'] = $text;
             }
