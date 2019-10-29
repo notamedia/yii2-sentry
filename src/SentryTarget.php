@@ -43,7 +43,7 @@ class SentryTarget extends Target
      */
     public function collect($messages, $final)
     {
-        \Sentry\init(['dsn' => $this->dsn]);
+        \Sentry\init(array_merge(['dsn' => $this->dsn], $this->clientOptions));
 
         parent::collect($messages, $final);
     }
