@@ -114,7 +114,7 @@ class SentryTarget extends Target
     public function runExtraCallback($text, $data)
     {
         if (is_callable($this->extraCallback)) {
-            $data['extra'] = call_user_func($this->extraCallback, $text, $data['extra'] ? $data['extra'] : []);
+            $data['extra'] = call_user_func($this->extraCallback, $text, isset($data['extra']) ? $data['extra'] : []);
         }
 
         return $data;
