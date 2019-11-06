@@ -1,5 +1,11 @@
 # Change log
 
+## 1.4.1 - 2019-11-06
+### Fixed
+* Fix passing client options to sentry.
+* Fix error with undefined index.
+* Fix bug with sets extra values.
+
 ## 1.4.0 - 2019-09-27
 ### Changed
 Used sentry/sdk 2.0 package.
