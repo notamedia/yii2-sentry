@@ -23,7 +23,10 @@ return [
 				    'class' => 'notamedia\sentry\SentryTarget',
 				    'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.io/1',
 				    'levels' => ['error', 'warning'],
-				    'context' => true // Write the context information. The default is true.
+				    // Write the context information (the default is true):
+				    'context' => true,
+				    // Additional options for `Sentry\init`:
+				    'clientOptions' => ['release' => 'my-project-name@2.3.12']
 			    ],
 		    ],
 	    ],
