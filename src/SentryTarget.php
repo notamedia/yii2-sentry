@@ -7,6 +7,7 @@
 namespace notamedia\sentry;
 
 use yii\helpers\ArrayHelper;
+use yii\helpers\VarDumper;
 use yii\log\Logger;
 use yii\log\Target;
 
@@ -107,9 +108,12 @@ class SentryTarget extends Target
             if ($this->context) {
                 $data['extra']['context'] = parent::getContextMessage();
             }
+            if(!isset($data['message'])) {
+                $data['message'] = VarDumper::dumpAsString($text);
+            }
 
             $data = $this->runExtraCallback($text, $data);
-            \Sentry\captureMessage($data['message']);
+            \Sentry\captureMessage($data['message'] ?? '');
         }
     }
 
