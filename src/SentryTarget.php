@@ -108,7 +108,7 @@ class SentryTarget extends Target
             if ($this->context) {
                 $data['extra']['context'] = parent::getContextMessage();
             }
-            if(!isset($data['message'])) {
+            if (!isset($data['message'])) {
                 $data['message'] = VarDumper::dumpAsString($text);
             }
 
