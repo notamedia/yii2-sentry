@@ -1,5 +1,9 @@
 # Change log
 
+## 1.4.2 - 2020-01-21
+### Fixed
+* Array export fix if text not contains message key.
+
 ## 1.4.1 - 2019-11-06
 ### Fixed
 * Fix passing client options to sentry.

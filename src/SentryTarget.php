@@ -66,6 +66,7 @@ class SentryTarget extends Target
 
             $data = [
                 'level' => static::getLevelName($level),
+                'message' => '',
                 'timestamp' => $timestamp,
                 'tags' => ['category' => $category]
             ];

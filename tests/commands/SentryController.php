@@ -19,6 +19,7 @@ class SentryController extends Controller
 
         foreach ($this->logsProvider() as $log) {
             \Yii::getLogger()->log($log['message'], $log['level'], $log['category']);
+            unset($log);
         }
 
         \Yii::getLogger()->flush();
@@ -54,7 +55,17 @@ class SentryController extends Controller
                 'level' => Logger::LEVEL_WARNING,
                 'message' => 'Invalid request',
                 'category' => 'UI'
-            ]
+            ],
+            [
+                'level' => null,
+                'message' => [1, 2, 3],
+                'category' => null
+            ],
+            [
+                'level' => '',
+                'message' => ['one' => 'value 1', 'two' => 'value 2'],
+                'category' => null
+            ],
         ];
     }
 }
