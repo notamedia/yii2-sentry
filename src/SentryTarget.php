@@ -121,7 +121,7 @@ class SentryTarget extends Target
     }
 
     /**
-     * Filters out unneeded messages exception from sending to Sentry
+     * Filters out from unneeded messages from sending to Sentry
      *
      * @return void
      */
