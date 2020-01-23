@@ -34,6 +34,10 @@ class SentryTarget extends Target
      */
     public $extraCallback;
     /**
+     * @var array Filter out exceptions that will not be send to Sentry
+     */
+    public $except = [];
+    /**
      * @var \Sentry
      */
     protected $client;
@@ -61,6 +65,8 @@ class SentryTarget extends Target
      */
     public function export()
     {
+        $this->filterOutExcepts();
+
         foreach ($this->messages as $message) {
             list($text, $level, $category, $timestamp, $traces) = $message;
 
@@ -92,7 +98,7 @@ class SentryTarget extends Target
                 }
 
                 $data['extra'] = $text;
-                
+
                 if (!empty($data['extra'])) {
                     \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($data): void {
                         foreach ($data['extra'] as $key => $value) {
@@ -100,7 +106,7 @@ class SentryTarget extends Target
                         }
                     });
                 }
-                
+
             } else {
                 $data['message'] = $text;
             }
@@ -115,10 +121,33 @@ class SentryTarget extends Target
     }
 
     /**
+     * Filters out unneeded messages exception from sending to Sentry
+     *
+     * @return void
+     */
+    private function filterOutExcepts()
+    {
+        $this->messages = array_filter($this->messages, function ($message) {
+            $text = $message[0];
+
+            if ($text instanceof \Throwable || $text instanceof \Exception) {
+                $filtered = array_filter($this->except, function ($ex) use ($text) {
+                    return $text instanceof $ex;
+                });
+
+                return count($filtered) === 0;
+            }
+
+            return true;
+        });
+    }
+
+    /**
      * Calls the extra callback if it exists
      *
      * @param $text
      * @param $data
+     *
      * @return array
      */
     public function runExtraCallback($text, $data)

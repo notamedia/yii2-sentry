@@ -6,6 +6,7 @@ use Codeception\Test\Unit;
 use notamedia\sentry\SentryTarget;
 use ReflectionClass;
 use yii\log\Logger;
+use yii\web\NotFoundHttpException;
 
 /**
  * Unit-tests for SentryTarget
@@ -15,8 +16,9 @@ class SentryTargetTest extends Unit
     /** @var array test messages */
     protected $messages = [
         ['test', Logger::LEVEL_INFO, 'test', 1481513561.197593, []],
-        ['test 2', Logger::LEVEL_INFO, 'test 2', 1481513572.867054, []]
+        ['test 2', Logger::LEVEL_INFO, 'test 2', 1481513572.867054, []],
     ];
+
 
     /**
      * Testing method getContextMessage()
@@ -100,17 +102,39 @@ class SentryTargetTest extends Unit
         $this->assertEquals(count($this->messages), count($sentryTarget->messages));
     }
 
+    public function testExportWithFiltering()
+    {
+        $originalCount = count($this->messages);
+
+        $exceptionInstance = new NotFoundHttpException('test 3');
+        $messages = array_merge([[$exceptionInstance, Logger::LEVEL_INFO, 'test 3', 1481513572.867054, []]],
+            $this->messages);
+
+        $sentryTarget = $this->getConfiguredSentryTarget(true);
+        $sentryTarget->collect($messages, false);
+        $sentryTarget->export();
+
+        $this->assertEquals($originalCount, count($sentryTarget->messages));
+    }
+
     /**
      * Returns configured SentryTarget object
+     *
+     * @param  bool  $enableFilters  Indicates if filters for exceptions is enabled
      *
      * @return SentryTarget
      * @throws \yii\base\InvalidConfigException
      */
-    protected function getConfiguredSentryTarget()
+    protected function getConfiguredSentryTarget($enableFilters = false)
     {
         $sentryTarget = new SentryTarget();
         $sentryTarget->exportInterval = 100;
         $sentryTarget->setLevels(Logger::LEVEL_INFO);
+        if ($enableFilters) {
+            $sentryTarget->except = [
+                NotFoundHttpException::class,
+            ];
+        }
         return $sentryTarget;
     }
 
