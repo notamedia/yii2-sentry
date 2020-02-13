@@ -4,15 +4,12 @@ php:
   - 7.1
   - 7.2
 
-sudo: false
-
 cache:
   directories:
     - $HOME/.composer/cache
 
 install:
   - composer self-update && composer --version
-  - composer config -g github-oauth.github.com $GITHUB_AUTH_TOKEN
   - travis_retry composer global require "fxp/composer-asset-plugin:~1.4"
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
   - travis_retry composer install --prefer-dist --no-interaction
