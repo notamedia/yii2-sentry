@@ -20,6 +20,12 @@
       "notamedia\\sentry\\": "src"
     }
   },
+  "extra": {
+    "asset-vcs-driver-options": {
+      "github-no-api": true
+    },
+    "asset-pattern-skip-version": "(-build|-patch)"
+  },
   "repositories": [
     {
       "type": "composer",
