@@ -36,36 +36,6 @@ class SentryTargetTest extends Unit
     }
 
     /**
-     * Testing method getLevelName()
-     * - returns level name for each logger level
-     * @see SentryTarget::getLevelName
-     */
-    public function testGetLevelName()
-    {
-        //valid level names
-        $levelNames = [
-            'info',
-            'error',
-            'warning',
-            'debug',
-        ];
-
-        $loggerClass = new ReflectionClass(Logger::className());
-        $loggerLevelConstants = $loggerClass->getConstants();
-        foreach ($loggerLevelConstants as $constant => $value) {
-            if (strpos($constant, 'LEVEL_') === 0) {
-                $level = SentryTarget::getLevelName($value);
-                $this->assertNotEmpty($level);
-                $this->assertTrue(in_array($level, $levelNames), sprintf('Level "%s" is incorrect', $level));
-            }
-        }
-
-        //check default level name
-        $this->assertEquals('error', SentryTarget::getLevelName(''));
-        $this->assertEquals('error', SentryTarget::getLevelName('somerandomstring' . uniqid()));
-    }
-
-    /**
      * Testing method collect()
      * - assigns messages to Target property
      * - creates Sentry object

@@ -146,26 +146,6 @@ class SentryTarget extends Target
     }
 
     /**
-     * Returns the text display of the specified level for the Sentry.
-     *
-     * @param integer $level The message level, e.g. [[LEVEL_ERROR]], [[LEVEL_WARNING]].
-     * @return string
-     */
-    public static function getLevelName($level)
-    {
-        static $levels = [
-            Logger::LEVEL_ERROR => 'error',
-            Logger::LEVEL_WARNING => 'warning',
-            Logger::LEVEL_INFO => 'info',
-            Logger::LEVEL_TRACE => 'debug',
-            Logger::LEVEL_PROFILE_BEGIN => 'debug',
-            Logger::LEVEL_PROFILE_END => 'debug',
-        ];
-
-        return isset($levels[$level]) ? $levels[$level] : 'error';
-    }
-
-    /**
      * Translates Yii2 log levels to Sentry Severity.
      *
      * @param int $level
