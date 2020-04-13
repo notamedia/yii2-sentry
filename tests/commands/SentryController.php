@@ -32,9 +32,7 @@ class SentryController extends Controller
                 'level' => Logger::LEVEL_ERROR,
                 'message' => [
                     'msg' => new \RuntimeException('Connection error', 999, new \Exception),
-                    'extra' => [
-                        'data' => 'Hello, World!',
-                    ],
+                    'extra' => 'Hello, World!',
                     'tags' => ['db-name' => 'bulling']
                 ],
                 'category' => 'dbms'
@@ -48,9 +46,7 @@ class SentryController extends Controller
                 'level' => Logger::LEVEL_INFO,
                 'message' => [
                     'msg' => 'Message from bulling service',
-                    'extra' => [
-                        'data' => 'Hello, World!',
-                    ],
+                    'extra' => 'Hello, World!',
                     'tags' => ['currency' => 'RUB']
                 ],
                 'category' => 'monitoring'

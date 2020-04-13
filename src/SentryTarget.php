@@ -98,10 +98,7 @@ class SentryTarget extends Target
                         unset($text['tags']);
                     }
 
-                    if (isset($text['extra'])) {
-                        $data['extra'] = ArrayHelper::merge($data['extra'], $text['extra']);
-                        unset($text['extra']);
-                    }
+                    $data['extra'] = $text;
                 } else {
                     $data['message'] = (string) $text;
                 }
