@@ -101,3 +101,29 @@ Yii2 log levels converts to Sentry levels:
 \yii\log\Logger::LEVEL_PROFILE_BEGIN => 'debug',
 \yii\log\Logger::LEVEL_PROFILE_END => 'debug',
 ```
+
+## Additional context
+
+You can add additional context (such as user information, fingerprint, etc) by calling `\Sentry\configureScope()` before logging.
+For example in main configuration on `beforeAction` event (real place will dependant on your project):
+```
+return [
+    // ...
+    'on beforeAction' => function (\yii\base\ActionEvent $event) {
+        /** @var \yii\web\User $user */
+        $user = Yii::$app->has('user', true) ? Yii::$app->get('user', false) : null;
+        if ($user && ($identity = $user->getIdentity(false))) {
+            \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($identity) {
+                $scope->setUser([
+                    // Id of User will be added by logger automaticaly
+                    'username' => $identity->username,
+                    'email' => $identity->email,
+                ], true);
+            });
+        }
+    
+        return $event->isValid;
+    },
+    // ...
+];
+```
