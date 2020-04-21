@@ -13,6 +13,16 @@ class User extends BaseObject implements IdentityInterface
     public $id = 1;
 
     /**
+     * @var string
+     */
+    public $username = 'JohnDoe';
+
+    /**
+     * @var string
+     */
+    public $email = 'john.doe@example.com';
+
+    /**
      * {@inheritdoc}
      */
     public static function findIdentity($id)

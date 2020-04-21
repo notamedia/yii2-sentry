@@ -27,6 +27,14 @@ class SentryController extends Controller
             }
             $_SERVER['REMOTE_ADDR'] = $log['ip'] ?? null;
 
+            \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($log) {
+                $scope->setUser([
+                    // configureScope modify global scope, so we revert changes from previous log message
+                    'username' => isset($log['user']) ? $log['user']->username : null,
+                    'email' => isset($log['user']) ? $log['user']->email : null,
+                ], true);
+            });
+
             Yii::getLogger()->log($log['message'], $log['level'], $log['category']);
             // We need to final flush logs for change ip and user on fly
             Yii::getLogger()->flush(true);
@@ -49,7 +57,11 @@ class SentryController extends Controller
                 'level' => Logger::LEVEL_ERROR,
                 'message' => new RuntimeException('Oops... This is exception.', 999, new \Exception),
                 'category' => 'exceptions',
-                'user' => new User(['id' => 42]),
+                'user' => new User([
+                    'id' => 47,
+                    'username' => 'Agent 47',
+                    'email' => '47@agency.com',
+                ]),
                 'ip' => '127.0.0.42',
             ],
             [
@@ -60,7 +72,11 @@ class SentryController extends Controller
                     'tags' => ['currency' => 'RUB'],
                 ],
                 'category' => 'monitoring',
-                'user' => new User(['id' => 543]),
+                'user' => new User([
+                    'id' => 543,
+                    'username' => 'John',
+                    'email' => 'hello@example.com',
+                ]),
                 'ip' => '2607:f0d0:1002:51::4',
             ],
             [
