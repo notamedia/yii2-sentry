@@ -41,13 +41,13 @@ class SentryTarget extends Target
     public $extraCallback;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function collect($messages, $final)
+    public function __construct($config = [])
     {
-        \Sentry\init(array_merge(['dsn' => $this->dsn], $this->clientOptions));
+        parent::__construct($config);
 
-        parent::collect($messages, $final);
+        \Sentry\init(array_merge(['dsn' => $this->dsn], $this->clientOptions));
     }
 
     /**
