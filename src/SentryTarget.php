@@ -74,7 +74,7 @@ class SentryTarget extends Target
             ];
 
             $request = Yii::$app->getRequest();
-            if ($request instanceof Request) {
+            if ($request instanceof Request && $request->getUserIP()) {
                 $data['userData']['ip_address'] = $request->getUserIP();
             }
 
