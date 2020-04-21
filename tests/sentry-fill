@@ -1,0 +1,42 @@
+#!/usr/bin/env php
+<?php
+
+include __DIR__ . '/bootstrap.php';
+
+$params = require __DIR__ . '/config/params.php';
+
+if (file_exists(__DIR__ . '/config/params-local.php')) {
+    $params = array_merge($params, require __DIR__ . '/config/params-local.php');
+}
+
+$application = new \yii\web\Application([
+    'id' => 'sentry-tests',
+    'basePath' => Yii::getAlias('@tests'),
+    'runtimePath' => Yii::getAlias('@tests/_output'),
+    'controllerNamespace' => 'tests\commands',
+    'bootstrap' => ['log'],
+    'params' => $params,
+    'components' => [
+        'request' => [
+            'cookieValidationKey' => '123',
+        ],
+        'log' => [
+            'targets' => [
+                [
+                    'class' => \yii\log\FileTarget::class,
+                ],
+                [
+                    'class' => \notamedia\sentry\SentryTarget::class,
+                    'dsn' => $params['sentryDsn'],
+                ],
+            ],
+        ],
+        'user' => [
+            'class' => \yii\web\User::class,
+            'identityClass' => \tests\models\User::class,
+            'enableSession' => false,
+        ],
+    ],
+]);
+
+$application->runAction('sentry/fill');
