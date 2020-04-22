@@ -115,7 +115,7 @@ return [
         if ($user && ($identity = $user->getIdentity(false))) {
             \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($identity) {
                 $scope->setUser([
-                    // User ID and IP will be added by logger automaticaly
+                    // User ID and IP will be added by logger automatically
                     'username' => $identity->username,
                     'email' => $identity->email,
                 ], true); // Don't forget to set second param of setUser to true for merging data
