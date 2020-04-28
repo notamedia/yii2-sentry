@@ -1,6 +1,6 @@
 # Change log
 
-## 1.5.0 - 2020-04-22
+## 1.5.0-beta - 2020-04-22
 ### Fixed
 * Fix message level (debug, info, warning, error) translating to sentry.
 * Fix message scope. For now every message has own scope and not affect to other.
