@@ -31,5 +31,9 @@
       "type": "composer",
       "url": "https://asset-packagist.org"
     }
-  ]
+  ],
+  "scripts": {
+    "test": "codecept run",
+    "e2e": "php tests/sentry-fill"
+  }
 }
