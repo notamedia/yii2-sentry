@@ -9,6 +9,15 @@ if (file_exists(__DIR__ . '/config/params-local.php')) {
     $params = array_merge($params, require __DIR__ . '/config/params-local.php');
 }
 
+echo "Started sentry e2e test...\n";
+
+if (!$params['sentryDsn']) {
+    echo "Can't find sentry dsn. Check 'sentryDsn' key in config/params-local.php file";
+    exit;
+}
+
+echo "Will use dsn: {$params['sentryDsn']}\n";
+
 $application = new \yii\web\Application([
     'id' => 'sentry-tests',
     'basePath' => Yii::getAlias('@tests'),
@@ -40,3 +49,5 @@ $application = new \yii\web\Application([
 ]);
 
 $application->runAction('sentry/fill');
+
+echo 'All messages sent.';
