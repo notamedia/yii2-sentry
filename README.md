@@ -89,24 +89,11 @@ Example:
 
 More about tags see https://docs.sentry.io/learn/context/#tagging-events
 
-## Log levels
-
-Yii2 log levels converts to Sentry levels:
-
-```
-\yii\log\Logger::LEVEL_ERROR => 'error',
-\yii\log\Logger::LEVEL_WARNING => 'warning',
-\yii\log\Logger::LEVEL_INFO => 'info',
-\yii\log\Logger::LEVEL_TRACE => 'debug',
-\yii\log\Logger::LEVEL_PROFILE_BEGIN => 'debug',
-\yii\log\Logger::LEVEL_PROFILE_END => 'debug',
-```
-
-## Additional context
+### Additional context
 
 You can add additional context (such as user information, fingerprint, etc) by calling `\Sentry\configureScope()` before logging.
 For example in main configuration on `beforeAction` event (real place will dependant on your project):
-```
+```php
 return [
     // ...
     'on beforeAction' => function (\yii\base\ActionEvent $event) {
@@ -126,4 +113,17 @@ return [
     },
     // ...
 ];
+```
+
+## Log levels
+
+Yii2 log levels converts to Sentry levels:
+
+```
+\yii\log\Logger::LEVEL_ERROR => 'error',
+\yii\log\Logger::LEVEL_WARNING => 'warning',
+\yii\log\Logger::LEVEL_INFO => 'info',
+\yii\log\Logger::LEVEL_TRACE => 'debug',
+\yii\log\Logger::LEVEL_PROFILE_BEGIN => 'debug',
+\yii\log\Logger::LEVEL_PROFILE_END => 'debug',
 ```
