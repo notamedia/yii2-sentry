@@ -107,7 +107,7 @@ class SentryTarget extends Target
                     $data['extra']['context'] = parent::getContextMessage();
                 }
 
-                $data['extra'] = $this->runExtraCallback($text, $data['extra']);
+                $data = $this->runExtraCallback($text, $data);
 
                 $scope->setUser($data['userData'], true);
                 foreach ($data['extra'] as $key => $value) {
@@ -132,17 +132,40 @@ class SentryTarget extends Target
      * Calls the extra callback if it exists
      *
      * @param mixed $text
-     * @param array $extra
+     * @param array $data
      *
      * @return array
      */
-    protected function runExtraCallback($text, array $extra): array
+    public function runExtraCallback($text, $data): array
     {
         if (is_callable($this->extraCallback)) {
-            $extra = call_user_func($this->extraCallback, $text, $extra);
+            $data['extra'] = call_user_func($this->extraCallback, $text, $data['extra'] ?? []);
         }
 
-        return $extra;
+        return $data;
+    }
+
+    /**
+     * Returns the text display of the specified level for the Sentry.
+     *
+     * @deprecated Deprecated from 1.5, will remove in 2.0
+     *
+     * @param int $level The message level, e.g. [[LEVEL_ERROR]], [[LEVEL_WARNING]].
+     *
+     * @return string
+     */
+    public static function getLevelName($level)
+    {
+        static $levels = [
+            Logger::LEVEL_ERROR => 'error',
+            Logger::LEVEL_WARNING => 'warning',
+            Logger::LEVEL_INFO => 'info',
+            Logger::LEVEL_TRACE => 'debug',
+            Logger::LEVEL_PROFILE_BEGIN => 'debug',
+            Logger::LEVEL_PROFILE_END => 'debug',
+        ];
+
+        return $levels[$level] ?? 'error';
     }
 
     /**
