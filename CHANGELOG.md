@@ -1,5 +1,16 @@
 # Change log
 
+## 1.5.0-beta - 2020-05-18
+### Fixed
+* Fix message level (debug, info, warning, error) translating to sentry.
+* Fix message scope. For now every message has own scope and not affect to other.
+* Fix adding additional data (extra context, user data) for exception messages.
+### Changed
+* Sentry init will be invoking at application start, and not before log export started.
+### Added
+* Log user ID and IP, if available.
+* Added ability to add own context data for messages scope.
+
 ## 1.4.2 - 2020-01-21
 ### Fixed
 * Array export fix if text not contains message key.

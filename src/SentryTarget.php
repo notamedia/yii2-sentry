@@ -6,9 +6,15 @@
 
 namespace notamedia\sentry;
 
+use Sentry\Severity;
+use Sentry\State\Scope;
+use Throwable;
+use Yii;
 use yii\helpers\ArrayHelper;
 use yii\log\Logger;
 use yii\log\Target;
+use yii\web\Request;
+use yii\web\User;
 
 /**
  * SentryTarget records log messages in a Sentry.
@@ -33,19 +39,15 @@ class SentryTarget extends Target
      * @var callable Callback function that can modify extra's array
      */
     public $extraCallback;
-    /**
-     * @var \Sentry
-     */
-    protected $client;
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function collect($messages, $final)
+    public function __construct($config = [])
     {
-        \Sentry\init(array_merge(['dsn' => $this->dsn], $this->clientOptions));
+        parent::__construct($config);
 
-        parent::collect($messages, $final);
+        \Sentry\init(array_merge(['dsn' => $this->dsn], $this->clientOptions));
     }
 
     /**
@@ -62,69 +64,82 @@ class SentryTarget extends Target
     public function export()
     {
         foreach ($this->messages as $message) {
-            list($text, $level, $category, $timestamp, $traces) = $message;
+            [$text, $level, $category] = $message;
 
             $data = [
-                'level' => static::getLevelName($level),
                 'message' => '',
-                'timestamp' => $timestamp,
-                'tags' => ['category' => $category]
+                'tags' => ['category' => $category],
+                'extra' => [],
+                'userData' => [],
             ];
 
-            if ($text instanceof \Throwable || $text instanceof \Exception) {
+            $request = Yii::$app->getRequest();
+            if ($request instanceof Request && $request->getUserIP()) {
+                $data['userData']['ip_address'] = $request->getUserIP();
+            }
+
+            try {
+                /** @var User $user */
+                $user = Yii::$app->has('user', true) ? Yii::$app->get('user', false) : null;
+                if ($user && ($identity = $user->getIdentity(false))) {
+                    $data['userData']['id'] = $identity->getId();
+                }
+            } catch (Throwable $e) {}
+
+            \Sentry\withScope(function (Scope $scope) use ($text, $level, $data) {
+                if (is_array($text)) {
+                    if (isset($text['msg'])) {
+                        $data['message'] = $text['msg'];
+                        unset($text['msg']);
+                    }
+
+                    if (isset($text['tags'])) {
+                        $data['tags'] = ArrayHelper::merge($data['tags'], $text['tags']);
+                        unset($text['tags']);
+                    }
+
+                    $data['extra'] = $text;
+                } else {
+                    $data['message'] = (string) $text;
+                }
+
+                if ($this->context) {
+                    $data['extra']['context'] = parent::getContextMessage();
+                }
+
                 $data = $this->runExtraCallback($text, $data);
-                \Sentry\captureException($text, $data);
-                continue;
-            } elseif (is_array($text)) {
-                if (isset($text['msg'])) {
-                    $data['message'] = $text['msg'];
-                    unset($text['msg']);
+
+                $scope->setUser($data['userData'], true);
+                foreach ($data['extra'] as $key => $value) {
+                    $scope->setExtra((string) $key, $value);
+                }
+                foreach ($data['tags'] as $key => $value) {
+                    if ($value) {
+                        $scope->setTag($key, $value);
+                    }
                 }
 
-                if (isset($text['tags'])) {
-                    $data['tags'] = ArrayHelper::merge($data['tags'], $text['tags']);
-                    \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($data): void {
-                        foreach ($data['tags'] as $key => $value) {
-                            $scope->setTag($key, $value);
-                        }
-                    });
-                    unset($text['tags']);
+                if ($text instanceof Throwable) {
+                    \Sentry\captureException($text);
+                } else {
+                    \Sentry\captureMessage($data['message'], $this->getLogLevel($level));
                 }
-
-                $data['extra'] = $text;
-                
-                if (!empty($data['extra'])) {
-                    \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($data): void {
-                        foreach ($data['extra'] as $key => $value) {
-                            $scope->setExtra((string)$key, $value);
-                        }
-                    });
-                }
-                
-            } else {
-                $data['message'] = $text;
-            }
-
-            if ($this->context) {
-                $data['extra']['context'] = parent::getContextMessage();
-            }
-
-            $data = $this->runExtraCallback($text, $data);
-            \Sentry\captureMessage($data['message']);
+            });
         }
     }
 
     /**
      * Calls the extra callback if it exists
      *
-     * @param $text
-     * @param $data
+     * @param mixed $text
+     * @param array $data
+     *
      * @return array
      */
     public function runExtraCallback($text, $data)
     {
         if (is_callable($this->extraCallback)) {
-            $data['extra'] = call_user_func($this->extraCallback, $text, isset($data['extra']) ? $data['extra'] : []);
+            $data['extra'] = call_user_func($this->extraCallback, $text, $data['extra'] ?? []);
         }
 
         return $data;
@@ -133,7 +148,10 @@ class SentryTarget extends Target
     /**
      * Returns the text display of the specified level for the Sentry.
      *
-     * @param integer $level The message level, e.g. [[LEVEL_ERROR]], [[LEVEL_WARNING]].
+     * @deprecated Deprecated from 1.5, will remove in 2.0
+     *
+     * @param int $level The message level, e.g. [[LEVEL_ERROR]], [[LEVEL_WARNING]].
+     *
      * @return string
      */
     public static function getLevelName($level)
@@ -147,6 +165,31 @@ class SentryTarget extends Target
             Logger::LEVEL_PROFILE_END => 'debug',
         ];
 
-        return isset($levels[$level]) ? $levels[$level] : 'error';
+        return $levels[$level] ?? 'error';
+    }
+
+    /**
+     * Translates Yii2 log levels to Sentry Severity.
+     *
+     * @param int $level
+     *
+     * @return Severity
+     */
+    protected function getLogLevel($level): Severity
+    {
+        switch ($level) {
+            case Logger::LEVEL_PROFILE:
+            case Logger::LEVEL_PROFILE_BEGIN:
+            case Logger::LEVEL_PROFILE_END:
+            case Logger::LEVEL_TRACE:
+                return Severity::debug();
+            case Logger::LEVEL_WARNING:
+                return Severity::warning();
+            case Logger::LEVEL_ERROR:
+                return Severity::error();
+            case Logger::LEVEL_INFO:
+            default:
+                return Severity::info();
+        }
     }
 }

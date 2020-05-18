@@ -16,4 +16,4 @@ install:
 
 script:
   - composer exec codecept build -v
-  - composer exec codecept run -v
+  - composer test -v

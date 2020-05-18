@@ -89,6 +89,32 @@ Example:
 
 More about tags see https://docs.sentry.io/learn/context/#tagging-events
 
+### Additional context
+
+You can add additional context (such as user information, fingerprint, etc) by calling `\Sentry\configureScope()` before logging.
+For example in main configuration on `beforeAction` event (real place will dependant on your project):
+```php
+return [
+    // ...
+    'on beforeAction' => function (\yii\base\ActionEvent $event) {
+        /** @var \yii\web\User $user */
+        $user = Yii::$app->has('user', true) ? Yii::$app->get('user', false) : null;
+        if ($user && ($identity = $user->getIdentity(false))) {
+            \Sentry\configureScope(function (\Sentry\State\Scope $scope) use ($identity) {
+                $scope->setUser([
+                    // User ID and IP will be added by logger automatically
+                    'username' => $identity->username,
+                    'email' => $identity->email,
+                ], true); // Don't forget to set second param of setUser to true for merging data
+            });
+        }
+    
+        return $event->isValid;
+    },
+    // ...
+];
+```
+
 ## Log levels
 
 Yii2 log levels converts to Sentry levels:
