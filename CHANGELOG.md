@@ -1,5 +1,8 @@
 # Change log
 
+## 1.5.0 - 2020-07-07
+1.5.0 released
+
 ## 1.5.0-beta - 2020-05-18
 ### Fixed
 * Fix message level (debug, info, warning, error) translating to sentry.
