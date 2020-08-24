@@ -1,5 +1,10 @@
 # Change log
 
+## 1.5.1 - 2020-08-24
+### Fixed
+* Fix double sending of events to Sentry.
+* Fix event exclusion ("except" parameter).
+
 ## 1.5.0 - 2020-07-07
 1.5.0 released
 
