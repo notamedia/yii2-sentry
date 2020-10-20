@@ -136,7 +136,7 @@ class SentryTarget extends Target
 
                 $data = $this->runExtraCallback($text, $data);
 
-                $scope->setUser($data['userData'], true);
+                $scope->setUser($data['userData']);
                 foreach ($data['extra'] as $key => $value) {
                     $scope->setExtra((string) $key, $value);
                 }
