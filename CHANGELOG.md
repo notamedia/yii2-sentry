@@ -1,6 +1,6 @@
 # Change log
 
-## 1.6.0 - 2020-10-22
+## 1.6.0-beta - 2020-10-22
 ### Changed
 * PHP updated to 7.2
 * Sentry/SDK updated to 3.0
