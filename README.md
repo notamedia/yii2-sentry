@@ -29,6 +29,8 @@ return [
 			'jsClientOptions' => [
 		        'release' => 'my-project-name@2.3.12',
 		    ],
+		    // Write the context information (the default is true):
+	        'context' => true,
         ],
 	    'log' => [
 		    'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -36,8 +38,6 @@ return [
 			    [
 				    'class' => 'notamedia\sentry\SentryTarget',
 				    'levels' => ['error', 'warning'],
-				    // Write the context information (the default is true):
-				    'context' => true,
 			    ],
 		    ],
 	    ],
@@ -71,7 +71,6 @@ Writing messages with extra data:
         [
             'class' => 'notamedia\sentry\SentryTarget',
             'levels' => ['error', 'warning'],
-            'context' => true, // Write the context information. The default is true.
             'extraCallback' => function ($message, $extra) {
                 // some manipulation with data
                 $extra['some_data'] = \Yii::$app->someComponent->someMethod();

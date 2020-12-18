@@ -16,6 +16,9 @@ use Sentry\Severity;
 use yii\web\Request;
 use Sentry\State\Scope;
 use yii\helpers\ArrayHelper;
+use function Sentry\captureException;
+use function Sentry\captureMessage;
+use function Sentry\withScope;
 
 /**
  * SentryTarget records log messages in a Sentry.
@@ -28,10 +31,6 @@ class SentryTarget extends Target
      * @var string|SentryComponent
      */
     public $sentry = 'sentry';
-    /**
-     * @var bool Write the context information. The default implementation will dump user information, system variables, etc.
-     */
-    public $context = true;
     /**
      * @var callable Callback function that can modify extra's array
      */
@@ -80,7 +79,7 @@ class SentryTarget extends Target
                 }
             } catch (Throwable $e) {}
 
-            \Sentry\withScope(function (Scope $scope) use ($text, $level, $data) {
+            withScope(function (Scope $scope) use ($text, $level, $data) {
                 if (is_array($text)) {
                     if (isset($text['msg'])) {
                         $data['message'] = $text['msg'];
@@ -97,7 +96,7 @@ class SentryTarget extends Target
                     $data['message'] = (string) $text;
                 }
 
-                if ($this->context) {
+                if ($this->sentry->context) {
                     $data['extra']['context'] = parent::getContextMessage();
                 }
 
@@ -114,9 +113,9 @@ class SentryTarget extends Target
                 }
 
                 if ($text instanceof Throwable) {
-                    \Sentry\captureException($text);
+                    captureException($text);
                 } else {
-                    \Sentry\captureMessage($data['message'], $this->getLogLevel($level));
+                    captureMessage($data['message'], $this->getLogLevel($level));
                 }
             });
         }

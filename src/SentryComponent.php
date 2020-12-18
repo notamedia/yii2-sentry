@@ -44,6 +44,10 @@ class SentryComponent extends Component
      * @see https://docs.sentry.io/platforms/javascript/configuration/
      */
     public $jsClientOptions = [];
+    /**
+     * @var bool Write the context information. The default implementation will dump user information, system variables, etc.
+     */
+    public $context = true;
 
     public function __construct($config = [])
     {
