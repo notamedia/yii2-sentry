@@ -10,9 +10,12 @@
   "require": {
     "php": "^7.2",
     "yiisoft/yii2": "^2.0",
-    "sentry/sdk": "^3.0"
+    "sentry/sdk": "^3.0",
+    "npm-asset/sentry--browser": "5.24.*",
+    "npm-asset/sentry--tracing": "5.24.*"
   },
   "require-dev": {
+    "roave/security-advisories": "dev-master",
     "codeception/codeception": "^4.0",
     "codeception/module-yii2": "^1.1",
     "codeception/module-asserts": "^1.3"
@@ -27,6 +30,22 @@
       "github-no-api": true
     },
     "asset-pattern-skip-version": "(-build|-patch)"
+  },
+  "config": {
+    "preferred-install": {
+      "*": "auto"
+    },
+    "fxp-asset": {
+      "installer-paths": {
+        "bower-asset-library": "vendor/bower",
+        "npm-asset-library": "vendor/npm"
+      },
+      "vcs-driver-options": {
+        "github-no-api": true
+      },
+      "git-skip-update": "2 days",
+      "pattern-skip-version": "(-build|-patch)"
+    }
   },
   "repositories": [
     {

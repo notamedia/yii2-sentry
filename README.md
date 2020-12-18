@@ -26,7 +26,13 @@ return [
 				    // Write the context information (the default is true):
 				    'context' => true,
 				    // Additional options for `Sentry\init`:
-				    'clientOptions' => ['release' => 'my-project-name@2.3.12']
+				    'clientOptions' => ['release' => 'my-project-name@2.3.12'],
+				    //collect JavaScript errors, default false
+				    'jsNotifier' => true,
+				    // Additional options for javascript `Sentry\init`:
+				    'jsClientOptions' => [
+				        'release' => 'my-project-name@2.3.12',
+				    ],
 			    ],
 		    ],
 	    ],

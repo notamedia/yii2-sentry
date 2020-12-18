@@ -6,7 +6,10 @@
 
 namespace notamedia\sentry;
 
+use yii\web\View;
+use yii\helpers\Json;
 use Sentry\ClientBuilder;
+use notamedia\sentry\assets\SentryTracingAsset;
 use Sentry\Integration\ErrorListenerIntegration;
 use Sentry\Integration\ExceptionListenerIntegration;
 use Sentry\Integration\FatalErrorListenerIntegration;
@@ -45,6 +48,17 @@ class SentryTarget extends Target
      * @var callable Callback function that can modify extra's array
      */
     public $extraCallback;
+    /**
+     * collect JavaScript errors
+     * @var bool
+     */
+    public $jsNotifier = false;
+    /**
+     * Sentry browser configuration array
+     * @var array
+     * @see https://docs.sentry.io/platforms/javascript/configuration/
+     */
+    public $jsClientOptions = [];
 
     /**
      * @inheritDoc
@@ -73,6 +87,18 @@ class SentryTarget extends Target
                 return true;
             });
         });
+
+        if ($this->jsNotifier) {
+            try {
+                $view = Yii::$app->getView();
+                SentryTracingAsset::register($view);
+                $jsOptions = array_merge(['dsn' => $this->dsn], $this->jsClientOptions);
+                $view->registerJs('Sentry.init(' . Json::encode($jsOptions) . ');', View::POS_HEAD);
+            } catch (Throwable $e) {
+                // initialize Sentry component even if unable to register the assets
+                Yii::error($e->getMessage());
+            }
+        }
 
         SentrySdk::init()->bindClient($builder->getClient());
     }
