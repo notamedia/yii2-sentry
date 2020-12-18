@@ -6,24 +6,16 @@
 
 namespace notamedia\sentry;
 
-use yii\web\View;
-use yii\helpers\Json;
-use Sentry\ClientBuilder;
-use notamedia\sentry\assets\SentryTracingAsset;
-use Sentry\Integration\ErrorListenerIntegration;
-use Sentry\Integration\ExceptionListenerIntegration;
-use Sentry\Integration\FatalErrorListenerIntegration;
-use Sentry\Integration\IntegrationInterface;
-use Sentry\SentrySdk;
-use Sentry\Severity;
-use Sentry\State\Scope;
-use Throwable;
 use Yii;
-use yii\helpers\ArrayHelper;
+use Throwable;
+use yii\web\User;
 use yii\log\Logger;
 use yii\log\Target;
+use yii\di\Instance;
+use Sentry\Severity;
 use yii\web\Request;
-use yii\web\User;
+use Sentry\State\Scope;
+use yii\helpers\ArrayHelper;
 
 /**
  * SentryTarget records log messages in a Sentry.
@@ -33,13 +25,9 @@ use yii\web\User;
 class SentryTarget extends Target
 {
     /**
-     * @var string Sentry client key.
+     * @var string|SentryComponent
      */
-    public $dsn;
-    /**
-     * @var array Options of the \Sentry.
-     */
-    public $clientOptions = [];
+    public $sentry = 'sentry';
     /**
      * @var bool Write the context information. The default implementation will dump user information, system variables, etc.
      */
@@ -48,63 +36,16 @@ class SentryTarget extends Target
      * @var callable Callback function that can modify extra's array
      */
     public $extraCallback;
-    /**
-     * collect JavaScript errors
-     * @var bool
-     */
-    public $jsNotifier = false;
-    /**
-     * Sentry browser configuration array
-     * @var array
-     * @see https://docs.sentry.io/platforms/javascript/configuration/
-     */
-    public $jsClientOptions = [];
 
-    /**
-     * @inheritDoc
-     */
     public function __construct($config = [])
     {
         parent::__construct($config);
 
-        $userOptions = array_merge(['dsn' => $this->dsn], $this->clientOptions);
-        $builder = ClientBuilder::create($userOptions);
-
-        $options = $builder->getOptions();
-        $options->setIntegrations(static function (array $integrations) {
-            // Remove the default error and fatal exception listeners to let us handle those
-            return array_filter($integrations, static function (IntegrationInterface $integration): bool {
-                if ($integration instanceof ErrorListenerIntegration) {
-                    return false;
-                }
-                if ($integration instanceof ExceptionListenerIntegration) {
-                    return false;
-                }
-                if ($integration instanceof FatalErrorListenerIntegration) {
-                    return false;
-                }
-
-                return true;
-            });
-        });
-
-        if ($this->jsNotifier) {
-            try {
-                $view = Yii::$app->getView();
-                SentryTracingAsset::register($view);
-                $jsOptions = array_merge(['dsn' => $this->dsn], $this->jsClientOptions);
-                $view->registerJs('Sentry.init(' . Json::encode($jsOptions) . ');', View::POS_HEAD);
-            } catch (Throwable $e) {
-                // initialize Sentry component even if unable to register the assets
-                Yii::error($e->getMessage());
-            }
-        }
-
-        SentrySdk::init()->bindClient($builder->getClient());
+        $this->sentry = Instance::ensure($this->sentry, SentryComponent::class);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getContextMessage()
     {
@@ -112,7 +53,7 @@ class SentryTarget extends Target
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function export()
     {

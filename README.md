@@ -16,23 +16,28 @@ Add target class in the application config:
 ```php
 return [
     'components' => [
+        'sentry' => [
+            'class' => 'notamedia\sentry\SentryComponent',
+            'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.io/1',
+            // Additional options for `Sentry\init`:
+            'clientOptions' => ['release' => 'my-project-name@2.3.12'],
+            //collect JavaScript errors, default false
+            'jsNotifier' => true,
+            //Collect javascript errors to different project
+            'jsDsn' => 'http://6cfe124dfafd4fa98ac0a7f7cfccf187@sentry.io/2',
+		    // Additional options for javascript `Sentry\init`:
+			'jsClientOptions' => [
+		        'release' => 'my-project-name@2.3.12',
+		    ],
+        ],
 	    'log' => [
 		    'traceLevel' => YII_DEBUG ? 3 : 0,
 		    'targets' => [
 			    [
 				    'class' => 'notamedia\sentry\SentryTarget',
-				    'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.io/1',
 				    'levels' => ['error', 'warning'],
 				    // Write the context information (the default is true):
 				    'context' => true,
-				    // Additional options for `Sentry\init`:
-				    'clientOptions' => ['release' => 'my-project-name@2.3.12'],
-				    //collect JavaScript errors, default false
-				    'jsNotifier' => true,
-				    // Additional options for javascript `Sentry\init`:
-				    'jsClientOptions' => [
-				        'release' => 'my-project-name@2.3.12',
-				    ],
 			    ],
 		    ],
 	    ],
@@ -65,7 +70,6 @@ Writing messages with extra data:
     'targets' => [
         [
             'class' => 'notamedia\sentry\SentryTarget',
-            'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.io/1',
             'levels' => ['error', 'warning'],
             'context' => true, // Write the context information. The default is true.
             'extraCallback' => function ($message, $extra) {
