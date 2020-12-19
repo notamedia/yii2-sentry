@@ -3,7 +3,7 @@
 namespace notamedia\sentry\tests\unit;
 
 use Codeception\Test\Unit;
-use notamedia\sentry\SentryTarget;
+use notamedia\sentry\Target;
 use ReflectionClass;
 use yii\log\Logger;
 
@@ -21,15 +21,15 @@ class SentryTargetTest extends Unit
     /**
      * Testing method getContextMessage()
      * - returns empty string ''
-     * @see SentryTarget::getContextMessage
+     * @see Target::getContextMessage
      */
     public function testGetContextMessage()
     {
-        $class = new ReflectionClass(SentryTarget::className());
+        $class = new ReflectionClass(Target::className());
         $method = $class->getMethod('getContextMessage');
         $method->setAccessible(true);
 
-        $sentryTarget = new SentryTarget();
+        $sentryTarget = new Target();
         $result = $method->invokeArgs($sentryTarget, []);
 
         $this->assertEmpty($result);
@@ -38,7 +38,7 @@ class SentryTargetTest extends Unit
     /**
      * Testing method getLevelName()
      * - returns level name for each logger level
-     * @see SentryTarget::getLevelName
+     * @see Target::getLevelName
      */
     public function testGetLevelName()
     {
@@ -54,22 +54,22 @@ class SentryTargetTest extends Unit
         $loggerLevelConstants = $loggerClass->getConstants();
         foreach ($loggerLevelConstants as $constant => $value) {
             if (strpos($constant, 'LEVEL_') === 0) {
-                $level = SentryTarget::getLevelName($value);
+                $level = Target::getLevelName($value);
                 $this->assertNotEmpty($level);
                 $this->assertTrue(in_array($level, $levelNames), sprintf('Level "%s" is incorrect', $level));
             }
         }
 
         //check default level name
-        $this->assertEquals('error', SentryTarget::getLevelName(''));
-        $this->assertEquals('error', SentryTarget::getLevelName('somerandomstring' . uniqid()));
+        $this->assertEquals('error', Target::getLevelName(''));
+        $this->assertEquals('error', Target::getLevelName('somerandomstring' . uniqid()));
     }
 
     /**
      * Testing method collect()
      * - assigns messages to Target property
      * - creates Sentry object
-     * @see SentryTarget::collect
+     * @see Target::collect
      */
     public function testCollect()
     {
@@ -84,7 +84,7 @@ class SentryTargetTest extends Unit
      * - Sentry::capture is called on collect([...], true)
      * - messages stack is cleaned on  collect([...], true)
      * - Sentry::capture is called on export()
-     * @see SentryTarget::export
+     * @see Target::export
      */
     public function testExport()
     {
@@ -103,12 +103,12 @@ class SentryTargetTest extends Unit
     /**
      * Returns configured SentryTarget object
      *
-     * @return SentryTarget
+     * @return Target
      * @throws \yii\base\InvalidConfigException
      */
     protected function getConfiguredSentryTarget()
     {
-        $sentryTarget = new SentryTarget();
+        $sentryTarget = new Target();
         $sentryTarget->exportInterval = 100;
         $sentryTarget->setLevels(Logger::LEVEL_INFO);
         return $sentryTarget;
@@ -117,10 +117,10 @@ class SentryTargetTest extends Unit
     /**
      * Returns reflected 'client' property
      *
-     * @param SentryTarget $sentryTarget
+     * @param Target $sentryTarget
      * @return \ReflectionProperty
      */
-    protected function getAccessibleClientProperty(SentryTarget $sentryTarget)
+    protected function getAccessibleClientProperty(Target $sentryTarget)
     {
         $sentryTargetClass = new ReflectionClass("\Sentry\Client");
         $clientProperty = $sentryTargetClass->getProperty('transport');

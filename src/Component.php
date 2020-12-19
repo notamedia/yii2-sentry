@@ -7,10 +7,10 @@ use Throwable;
 use yii\web\View;
 use Sentry\SentrySdk;
 use yii\helpers\Json;
-use yii\base\Component;
+use yii\web\Application;
 use Sentry\ClientBuilder;
 use Sentry\Integration\IntegrationInterface;
-use notamedia\sentry\assets\SentryTracingAsset;
+use notamedia\sentry\assets\TracingAsset;
 use Sentry\Integration\ErrorListenerIntegration;
 use Sentry\Integration\ExceptionListenerIntegration;
 use Sentry\Integration\FatalErrorListenerIntegration;
@@ -19,7 +19,7 @@ use Sentry\Integration\FatalErrorListenerIntegration;
  * Class SentryComponent
  * @package notamedia\sentry
  */
-class SentryComponent extends Component
+class Component extends yii\base\Component
 {
     /**
      * @var string Sentry client key.
@@ -66,13 +66,17 @@ class SentryComponent extends Component
             return;
         }
 
+        if (!Yii::$app instanceof Application) {
+            return;
+        }
+
         if (empty($this->jsDsn)) {
             $this->jsDsn = $this->dsn;
         }
 
         try {
             $view = Yii::$app->getView();
-            SentryTracingAsset::register($view);
+            TracingAsset::register($view);
             $jsOptions = array_merge(['dsn' => $this->jsDsn], $this->jsClientOptions);
             $view->registerJs('Sentry.init(' . Json::encode($jsOptions) . ');', View::POS_HEAD);
         } catch (Throwable $e) {

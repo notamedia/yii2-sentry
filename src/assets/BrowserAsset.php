@@ -9,7 +9,7 @@ use yii\web\AssetBundle;
  * Class SentryAsset
  * @package notamedia\sentry\assets
  */
-class SentryBrowserAsset extends AssetBundle
+class BrowserAsset extends AssetBundle
 {
     public $sourcePath = '@npm/sentry--browser';
 

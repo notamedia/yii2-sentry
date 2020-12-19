@@ -10,25 +10,24 @@ use Yii;
 use Throwable;
 use yii\web\User;
 use yii\log\Logger;
-use yii\log\Target;
 use yii\di\Instance;
 use Sentry\Severity;
 use yii\web\Request;
 use Sentry\State\Scope;
 use yii\helpers\ArrayHelper;
+
 use function Sentry\captureException;
 use function Sentry\captureMessage;
 use function Sentry\withScope;
 
 /**
  * SentryTarget records log messages in a Sentry.
- *
  * @see https://sentry.io
  */
-class SentryTarget extends Target
+class Target extends yii\log\Target
 {
     /**
-     * @var string|SentryComponent
+     * @var string|Component
      */
     public $sentry = 'sentry';
     /**
@@ -40,7 +39,7 @@ class SentryTarget extends Target
     {
         parent::__construct($config);
 
-        $this->sentry = Instance::ensure($this->sentry, SentryComponent::class);
+        $this->sentry = Instance::ensure($this->sentry, Component::class);
     }
 
     /**

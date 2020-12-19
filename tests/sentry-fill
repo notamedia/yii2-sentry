@@ -35,7 +35,7 @@ $application = new \yii\web\Application([
                     'class' => \yii\log\FileTarget::class,
                 ],
                 [
-                    'class' => \notamedia\sentry\SentryTarget::class,
+                    'class' => \notamedia\sentry\Target::class,
                     'dsn' => $params['sentryDsn'],
                 ],
             ],

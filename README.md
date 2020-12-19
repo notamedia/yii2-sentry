@@ -17,7 +17,7 @@ Add target class in the application config:
 return [
     'components' => [
         'sentry' => [
-            'class' => 'notamedia\sentry\SentryComponent',
+            'class' => 'notamedia\sentry\Component',
             'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.io/1',
             // Additional options for `Sentry\init`:
             'clientOptions' => ['release' => 'my-project-name@2.3.12'],
@@ -25,21 +25,21 @@ return [
             'jsNotifier' => true,
             //Collect javascript errors to different project
             'jsDsn' => 'http://6cfe124dfafd4fa98ac0a7f7cfccf187@sentry.io/2',
-		    // Additional options for javascript `Sentry\init`:
-			'jsClientOptions' => [
-		        'release' => 'my-project-name@2.3.12',
-		    ],
-		    // Write the context information (the default is true):
-	        'context' => true,
+            // Additional options for javascript `Sentry\init`:
+            'jsClientOptions' => [
+                'release' => 'my-project-name@2.3.12',
+            ],
+            // Write the context information (the default is true):
+            'context' => true,
         ],
 	    'log' => [
-		    'traceLevel' => YII_DEBUG ? 3 : 0,
-		    'targets' => [
-			    [
-				    'class' => 'notamedia\sentry\SentryTarget',
-				    'levels' => ['error', 'warning'],
-			    ],
-		    ],
+	        'traceLevel' => YII_DEBUG ? 3 : 0,
+	        'targets' => [
+	            [
+                        'class' => 'notamedia\sentry\Target',
+                        'levels' => ['error', 'warning'],
+                    ],
+	        ],
 	    ],
     ],
 ];
@@ -65,11 +65,11 @@ Writing messages with extra data:
 ### Extra callback
 
 `extraCallback` property can modify extra's data as callable function:
- 
+
 ```php
     'targets' => [
         [
-            'class' => 'notamedia\sentry\SentryTarget',
+            'class' => 'notamedia\sentry\Target',
             'levels' => ['error', 'warning'],
             'extraCallback' => function ($message, $extra) {
                 // some manipulation with data

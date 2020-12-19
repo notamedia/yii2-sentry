@@ -9,7 +9,7 @@ use yii\web\AssetBundle;
  * Class SentryAsset
  * @package notamedia\sentry\assets
  */
-class SentryTracingAsset extends AssetBundle
+class TracingAsset extends AssetBundle
 {
     public $sourcePath = '@npm/sentry--tracing';
 
@@ -22,6 +22,6 @@ class SentryTracingAsset extends AssetBundle
     ];
 
     public $depends = [
-        SentryBrowserAsset::class,
+        BrowserAsset::class,
     ];
 }
