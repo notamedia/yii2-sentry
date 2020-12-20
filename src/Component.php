@@ -48,6 +48,10 @@ class Component extends yii\base\Component
      * @var bool Write the context information. The default implementation will dump user information, system variables, etc.
      */
     public $context = true;
+    /**
+     * @var string Environment application
+     */
+    public $environment = YII_ENV;
 
     public function __construct($config = [])
     {
@@ -77,7 +81,7 @@ class Component extends yii\base\Component
         try {
             $view = Yii::$app->getView();
             TracingAsset::register($view);
-            $jsOptions = array_merge(['dsn' => $this->jsDsn], $this->jsClientOptions);
+            $jsOptions = array_merge(['dsn' => $this->jsDsn, 'environment' => $this->environment], $this->jsClientOptions);
             $view->registerJs('Sentry.init(' . Json::encode($jsOptions) . ');', View::POS_HEAD);
         } catch (Throwable $e) {
             // initialize Sentry component even if unable to register the assets
@@ -90,7 +94,7 @@ class Component extends yii\base\Component
      */
     private function phpInit(): void
     {
-        $userOptions = array_merge(['dsn' => $this->dsn], $this->clientOptions);
+        $userOptions = array_merge(['dsn' => $this->dsn,  'environment' => $this->environment], $this->clientOptions);
         $builder = ClientBuilder::create($userOptions);
 
         $options = $builder->getOptions();

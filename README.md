@@ -31,16 +31,18 @@ return [
             ],
             // Write the context information (the default is true):
             'context' => true,
+            //add Environment application
+            'environment' => 'test',
         ],
-	    'log' => [
-	        'traceLevel' => YII_DEBUG ? 3 : 0,
-	        'targets' => [
-	            [
-                        'class' => 'notamedia\sentry\Target',
-                        'levels' => ['error', 'warning'],
-                    ],
-	        ],
-	    ],
+        'log' => [
+            'traceLevel' => YII_DEBUG ? 3 : 0,
+            'targets' => [
+                [
+                    'class' => 'notamedia\sentry\Target',
+                    'levels' => ['error', 'warning'],
+                ],
+            ],
+        ],
     ],
 ];
 ```
