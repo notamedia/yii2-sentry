@@ -131,7 +131,7 @@ class SentryTarget extends Target
                         unset($text['tags']);
                     }
 
-                    if (isset($text['exception'])) {
+                    if (isset($text['exception']) && $text['exception'] instanceof Throwable) {
                         $data['exception'] = $text['exception'];
                         unset($text['exception']);
                     }
