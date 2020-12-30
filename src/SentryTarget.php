@@ -7,6 +7,8 @@
 namespace notamedia\sentry;
 
 use Sentry\ClientBuilder;
+use Sentry\Event;
+use Sentry\EventHint;
 use Sentry\Integration\ErrorListenerIntegration;
 use Sentry\Integration\ExceptionListenerIntegration;
 use Sentry\Integration\FatalErrorListenerIntegration;
@@ -119,10 +121,19 @@ class SentryTarget extends Target
                         $data['message'] = $text['msg'];
                         unset($text['msg']);
                     }
+                    if (isset($text['message'])) {
+                        $data['message'] = $text['message'];
+                        unset($text['message']);
+                    }
 
                     if (isset($text['tags'])) {
                         $data['tags'] = ArrayHelper::merge($data['tags'], $text['tags']);
                         unset($text['tags']);
+                    }
+
+                    if (isset($text['exception'])) {
+                        $data['exception'] = $text['exception'];
+                        unset($text['exception']);
                     }
 
                     $data['extra'] = $text;
@@ -149,7 +160,13 @@ class SentryTarget extends Target
                 if ($text instanceof Throwable) {
                     \Sentry\captureException($text);
                 } else {
-                    \Sentry\captureMessage($data['message'], $this->getLogLevel($level));
+                    $event = Event::createEvent();
+                    $event->setMessage($data['message']);
+                    $event->setLevel($this->getLogLevel($level));
+
+                    \Sentry\captureEvent($event, EventHint::fromArray(array_filter([
+                        'exception' => $data['exception'] ?? null,
+                    ])));
                 }
             });
         }

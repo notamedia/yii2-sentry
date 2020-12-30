@@ -2,10 +2,17 @@
 
 namespace notamedia\sentry\tests\unit;
 
-use Codeception\Test\Unit;
-use notamedia\sentry\SentryTarget;
-use ReflectionClass;
+use Sentry\Event;
+use Sentry\EventHint;
+use Sentry\EventId;
 use yii\log\Logger;
+use ReflectionClass;
+use RuntimeException;
+use Sentry\SentrySdk;
+use Sentry\State\Scope;
+use Codeception\Test\Unit;
+use Sentry\ClientInterface;
+use notamedia\sentry\SentryTarget;
 
 /**
  * Unit-tests for SentryTarget
@@ -33,6 +40,72 @@ class SentryTargetTest extends Unit
         $result = $method->invokeArgs($sentryTarget, []);
 
         $this->assertEmpty($result);
+    }
+
+    public function testExceptionPassing()
+    {
+        $sentryTarget = $this->getConfiguredSentryTarget();
+
+        $logData = [
+            'message' => 'This exception was caught, but still needs to be reported',
+            'exception' => new RuntimeException('Package loss detected'),
+            'something_extra' => ['foo' => 'bar'],
+        ];
+
+        $messageWasSent = false;
+
+        $client = $this->createMock(ClientInterface::class);
+        $client->expects($this->once())
+            ->method('captureEvent')
+            ->willReturnCallback(function (Event $event, ?EventHint $hint = null, ?Scope $scope = null) use ($logData, &$messageWasSent): ?EventId {
+                $messageWasSent = true;
+                $this->assertSame($logData['exception'], $hint->exception);
+                $this->assertSame($logData['message'], $event->getMessage());
+
+                return EventId::generate();
+            });
+
+        SentrySdk::getCurrentHub()->bindClient($client);
+
+        $sentryTarget->collect([[$logData, Logger::LEVEL_INFO, 'application', 1481513561.197593, []]], true);
+        $this->assertTrue($messageWasSent);
+    }
+
+    public function messageDataProvider()
+    {
+        $msg = 'A message';
+
+        yield [$msg, $msg];
+
+        yield [$msg, ['msg' => $msg]];
+
+        yield [$msg, ['message' => $msg]];
+
+        yield [$msg, ['message' => $msg, 'msg' => 'Ignored']];
+    }
+
+    /**
+     * @dataProvider messageDataProvider
+     */
+    public function testMessageConverting($expectedMessageText, $loggedMessage)
+    {
+        $sentryTarget = $this->getConfiguredSentryTarget();
+        $messageWasSent = false;
+
+        $client = $this->createMock(ClientInterface::class);
+        $client->expects($this->once())
+               ->method('captureEvent')
+               ->willReturnCallback(function (Event $event, ?EventHint $hint = null, ?Scope $scope = null) use ($expectedMessageText, &$messageWasSent): ?EventId {
+                   $messageWasSent = true;
+                   $this->assertSame($expectedMessageText, $event->getMessage());
+
+                   return EventId::generate();
+               });
+
+        SentrySdk::getCurrentHub()->bindClient($client);
+
+        $sentryTarget->collect([[$loggedMessage, Logger::LEVEL_INFO, 'application', 1481513561.197593, []]], true);
+        $this->assertTrue($messageWasSent);
     }
 
     /**
