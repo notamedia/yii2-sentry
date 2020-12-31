@@ -118,11 +118,11 @@ class SentryTarget extends Target
             \Sentry\withScope(function (Scope $scope) use ($text, $level, $data) {
                 if (is_array($text)) {
                     if (isset($text['msg'])) {
-                        $data['message'] = $text['msg'];
+                        $data['message'] = (string)$text['msg'];
                         unset($text['msg']);
                     }
                     if (isset($text['message'])) {
-                        $data['message'] = $text['message'];
+                        $data['message'] = (string)$text['message'];
                         unset($text['message']);
                     }
 
