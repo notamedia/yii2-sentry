@@ -74,18 +74,12 @@ class Component extends yii\base\Component
             return;
         }
 
-        if (empty($this->jsDsn)) {
-            $this->jsDsn = $this->dsn;
-        }
-
         try {
-            $view = Yii::$app->getView();
-            TracingAsset::register($view);
-            $jsOptions = array_merge(['dsn' => $this->jsDsn, 'environment' => $this->environment], $this->jsClientOptions);
-            $view->registerJs('Sentry.init(' . Json::encode($jsOptions) . ');', View::POS_HEAD);
+            $options = $this->getJsClienOptions();
+            $this->registerAssets($options);
         } catch (Throwable $e) {
             // initialize Sentry component even if unable to register the assets
-            Yii::error($e->getMessage());
+            Yii::error($e->getMessage(), __METHOD__);
         }
     }
 
@@ -94,11 +88,14 @@ class Component extends yii\base\Component
      */
     private function phpInit(): void
     {
-        $userOptions = array_merge(['dsn' => $this->dsn,  'environment' => $this->environment], $this->clientOptions);
-        $builder = ClientBuilder::create($userOptions);
+        if (empty($this->dsn)) {
+            return;
+        }
 
-        $options = $builder->getOptions();
-        $options->setIntegrations(static function (array $integrations) {
+        $options = $this->getClienOptions();
+
+        $builder = ClientBuilder::create($options);
+        $builder->getOptions()->setIntegrations(static function (array $integrations) {
             // Remove the default error and fatal exception listeners to let us handle those
             return array_filter($integrations, static function (IntegrationInterface $integration): bool {
                 if ($integration instanceof ErrorListenerIntegration) {
@@ -116,5 +113,39 @@ class Component extends yii\base\Component
         });
 
         SentrySdk::init()->bindClient($builder->getClient());
+    }
+
+    /**
+     * @param array $options
+     */
+    protected function registerAssets($options)
+    {
+        $view = Yii::$app->getView();
+        TracingAsset::register($view);
+        $view->registerJs('Sentry.init(' . Json::encode($options) . ');', View::POS_HEAD);
+    }
+
+    /**
+     * @return array
+     */
+    protected function getJsClienOptions()
+    {
+        $options = $this->jsClientOptions;
+        $options['dsn'] = $this->jsDsn ?: $this->dsn;
+        $options['environment'] = $this->environment;
+
+        return $options;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getClienOptions()
+    {
+        $options = $this->clientOptions;
+        $options['dsn'] = $this->dsn;
+        $options['environment'] = $this->environment;
+
+        return $options;
     }
 }
