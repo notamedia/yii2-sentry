@@ -89,6 +89,22 @@ Example:
 
 More about tags see https://docs.sentry.io/learn/context/#tagging-events
 
+
+### Breadcrumbs
+
+All messages will be added to Breadcrumbs display.
+
+You can mark breadcrumbs with type:
+
+```php
+\Yii::warning([
+    'msg' => 'message',
+    'type' => \Sentry\Breadcrumb::TYPE_HTTP,
+], 'category');
+```
+
+More about breadcrumbs see https://docs.sentry.io/product/error-monitoring/breadcrumbs/
+
 ### Additional context
 
 You can add additional context (such as user information, fingerprint, etc) by calling `\Sentry\configureScope()` before logging.
