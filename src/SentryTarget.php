@@ -111,13 +111,13 @@ class SentryTarget extends Target
             [$message, $tags, $exception, $type, $extra] = $this->parseText($text);
 
             $metadata = [];
-            if(!empty($tags))
+            if (!empty($tags))
                 $metadata['tags'] = $tags;
 
-            if(!empty($exception))
+            if (!empty($exception))
                 $metadata['exception'] = $exception;
 
-            if(!empty($extra))
+            if (!empty($extra))
                 $metadata['extra'] = $extra;
 
             // $timestamp parameter will be added soon
@@ -154,7 +154,8 @@ class SentryTarget extends Target
                 if ($user && ($identity = $user->getIdentity(false))) {
                     $data['userData']['id'] = $identity->getId();
                 }
-            } catch (Throwable $e) {}
+            } catch (Throwable $e) {
+            }
 
             \Sentry\withScope(function (Scope $scope) use ($text, $level, $timestamp, $traces, $data) {
                 [$data['message'], $tags, $data['exception'], $breadcrumbType, $data['extra']] = $this->parseText($text);
@@ -232,7 +233,7 @@ class SentryTarget extends Target
             }
             $extra = $text;
         } else {
-            $message = (string) $text;
+            $message = (string)$text;
         }
         return [$message, $tags, $exception, $type, $extra];
     }
@@ -244,8 +245,8 @@ class SentryTarget extends Target
      */
     protected function buildStacktrace($traces)
     {
-        if(is_array($traces) && ! empty($traces)) {
-            return $this->stacktraceBuilder->buildFromBacktrace($traces, Frame::INTERNAL_FRAME_FILENAME , 0);
+        if (is_array($traces) && !empty($traces)) {
+            return $this->stacktraceBuilder->buildFromBacktrace($traces, Frame::INTERNAL_FRAME_FILENAME, 0);
         }
         return null;
     }
