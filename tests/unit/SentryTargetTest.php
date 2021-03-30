@@ -2,9 +2,12 @@
 
 namespace notamedia\sentry\tests\unit;
 
+use Sentry\Breadcrumb;
 use Sentry\Event;
 use Sentry\EventHint;
 use Sentry\EventId;
+use Sentry\Options;
+use Sentry\Stacktrace;
 use yii\log\Logger;
 use ReflectionClass;
 use RuntimeException;
@@ -54,7 +57,7 @@ class SentryTargetTest extends Unit
 
         $messageWasSent = false;
 
-        $client = $this->createMock(ClientInterface::class);
+        $client = $this->getClientMock();
         $client->expects($this->once())
             ->method('captureEvent')
             ->willReturnCallback(function (Event $event, ?EventHint $hint = null, ?Scope $scope = null) use ($logData, &$messageWasSent): ?EventId {
@@ -92,7 +95,7 @@ class SentryTargetTest extends Unit
         $sentryTarget = $this->getConfiguredSentryTarget();
         $messageWasSent = false;
 
-        $client = $this->createMock(ClientInterface::class);
+        $client = $this->getClientMock();
         $client->expects($this->once())
                ->method('captureEvent')
                ->willReturnCallback(function (Event $event, ?EventHint $hint = null, ?Scope $scope = null) use ($expectedMessageText, &$messageWasSent): ?EventId {
@@ -173,6 +176,122 @@ class SentryTargetTest extends Unit
         $this->assertEquals(count($this->messages), count($sentryTarget->messages));
     }
 
+    public function breadcrumbsDataProvider()
+    {
+        $msg = 'A message';
+
+        yield [
+            [
+                ['msg' => $msg, 'category' => 'category']
+            ],
+            $msg,
+            Breadcrumb::TYPE_DEFAULT,
+            'category',
+            1
+        ];
+        yield [
+            [
+                ['msg' => $msg, 'category' => 'Multiple'],
+                ['msg' => $msg, 'category' => 'Multiple'],
+                ['msg' => $msg, 'category' => 'Multiple'],
+            ],
+            $msg,
+            Breadcrumb::TYPE_DEFAULT,
+            'Multiple',
+            3
+        ];
+        yield [
+            [
+                [
+                    'msg' => ['msg' => $msg, 'type' => Breadcrumb::TYPE_HTTP],
+                    'category' => 'Test type'
+                ],
+            ],
+            $msg,
+            Breadcrumb::TYPE_HTTP,
+            'Test type',
+            1
+        ];
+    }
+
+    /**
+     * Test breadcrumbs adding in collect method
+     * @dataProvider breadcrumbsDataProvider
+     */
+    public function testBreadcrumbs($breadcrumbs, $msg, $type, $category, $count)
+    {
+        $sentryTarget = $this->getConfiguredSentryTarget();
+
+        $client = $this->getClientMock();
+        $client->expects($this->exactly($count))
+            ->method('captureEvent')
+            ->willReturnCallback(function (Event $event, ?EventHint $hint = null, ?Scope $scope = null) use ($msg, $type, $category, $count): ?EventId {
+                $scope->applyToEvent($event, $hint);
+                $breadcrumbs = $event->getBreadcrumbs();
+                $this->assertEquals($count, count($breadcrumbs));
+
+                foreach ($breadcrumbs as $breadcrumb) {
+                    $this->assertEquals($type, $breadcrumb->getType());
+                    $this->assertEquals($msg, $breadcrumb->getMessage());
+                    $this->assertEquals($category, $breadcrumb->getCategory());
+                }
+
+                return EventId::generate();
+            });
+
+        SentrySdk::getCurrentHub()->bindClient($client);
+
+        $lastEvent = array_pop($breadcrumbs);
+        foreach ($breadcrumbs as $breadcrumb) {
+            $sentryTarget->collect([[$breadcrumb['msg'], Logger::LEVEL_INFO, $breadcrumb['category'], microtime(true), []]], false);
+        }
+        $sentryTarget->collect([[$lastEvent['msg'], Logger::LEVEL_INFO, $lastEvent['category'], microtime(true), []]], true);
+    }
+
+    public function stacktraceDataProvider()
+    {
+        yield [
+            []
+        ];
+
+        yield [
+            [['file' => '/dir/file1.php', 'line'=> 42]]
+        ];
+
+        yield [
+            [['file' => '/dir/file1.php', 'line'=> 42], ['file' => '/dir/file2.php', 'line'=> 30]]
+        ];
+    }
+
+    /**
+     * Testing method buildStacktrace()
+     *
+     * @dataProvider stacktraceDataProvider
+     */
+    public function testBuildStacktrace($traces)
+    {
+        $class = new ReflectionClass(SentryTarget::className());
+        $method = $class->getMethod('buildStacktrace');
+        $method->setAccessible(true);
+
+        $sentryTarget = $this->getConfiguredSentryTarget();
+
+        /**
+         * @var $stacktrace Stacktrace
+         */
+        $stacktrace = $method->invokeArgs($sentryTarget, [$traces]);
+
+        if(empty($traces))
+            $this->assertNull($stacktrace);
+        else {
+            // Plus one final frame
+            $expects = count($traces) + 1;
+
+            $this->assertEquals($expects, count($stacktrace->getFrames()));
+        }
+
+    }
+
     /**
      * Returns configured SentryTarget object
      *
@@ -185,6 +304,19 @@ class SentryTargetTest extends Unit
         $sentryTarget->exportInterval = 100;
         $sentryTarget->setLevels(Logger::LEVEL_INFO);
         return $sentryTarget;
+    }
+
+    /**
+     * Returns configured client object
+     *
+     * @return \PHPUnit\Framework\MockObject\MockObject|ClientInterface
+     */
+    protected function getClientMock()
+    {
+        $client = $this->createConfiguredMock(ClientInterface::class, [
+            'getOptions' => new Options()
+        ]);
+        return $client;
     }
 
     /**
