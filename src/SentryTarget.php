@@ -138,7 +138,11 @@ class SentryTarget extends Target
 
                     $data['extra'] = $text;
                 } else {
-                    $data['message'] = (string) $text;
+                    if($text instanceof Throwable) {
+                        $data['exception'] = $text;
+                    } else {
+                        $data['message'] = (string)$text;
+                    }
                 }
 
                 if ($this->context) {
