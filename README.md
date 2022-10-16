@@ -16,20 +16,20 @@ Add target class in the application config:
 ```php
 return [
     'components' => [
-	    'log' => [
-		    'traceLevel' => YII_DEBUG ? 3 : 0,
-		    'targets' => [
-			    [
-				    'class' => 'notamedia\sentry\SentryTarget',
-				    'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.io/1',
-				    'levels' => ['error', 'warning'],
-				    // Write the context information (the default is true):
-				    'context' => true,
-				    // Additional options for `Sentry\init`:
-				    'clientOptions' => ['release' => 'my-project-name@2.3.12']
-			    ],
-		    ],
-	    ],
+        'log' => [
+            'traceLevel' => YII_DEBUG ? 3 : 0,
+            'targets' => [
+                [
+                    'class' => 'notamedia\sentry\SentryTarget',
+                    'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.io/1',
+                    'levels' => ['error', 'warning'],
+                    // Write the context information (the default is true):
+                    'context' => true,
+                    // Additional options for `Sentry\init`:
+                    'clientOptions' => ['release' => 'my-project-name@2.3.12']
+                ],
+            ],
+        ],
     ],
 ];
 ```
@@ -51,24 +51,26 @@ Writing messages with extra data:
 ], 'category');
 ```
 
+> If you use `Yii::error` or `Yii::warning` with an array, don't forget to use a key either `msg` or `message` otherwise, you will have an `<unlabeled event>` error report in sentry. So even when you dump any error/info data into Sentry, use add a `msg` or `message` key like this `Yii::error(['message' => 'An Error From XYZ', 'payload' => $payload]);
+
 ### Extra callback
 
 `extraCallback` property can modify extra's data as callable function:
  
 ```php
-    'targets' => [
-        [
-            'class' => 'notamedia\sentry\SentryTarget',
-            'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.io/1',
-            'levels' => ['error', 'warning'],
-            'context' => true, // Write the context information. The default is true.
-            'extraCallback' => function ($message, $extra) {
-                // some manipulation with data
-                $extra['some_data'] = \Yii::$app->someComponent->someMethod();
-                return $extra;
-            }
-        ],
+'targets' => [
+    [
+        'class' => 'notamedia\sentry\SentryTarget',
+        'dsn' => 'http://2682ybvhbs347:235vvgy465346@sentry.io/1',
+        'levels' => ['error', 'warning'],
+        'context' => true, // Write the context information. The default is true.
+        'extraCallback' => function ($message, $extra) {
+            // some manipulation with data
+            $extra['some_data'] = \Yii::$app->someComponent->someMethod();
+            return $extra;
+        }
     ],
+],
 ```
 
 ### Tags
