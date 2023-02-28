@@ -1,5 +1,5 @@
 {
-  "name": "notamedia/yii2-sentry",
+  "name": "shyx32/yii2-sentry",
   "description": "Yii2 logger for Sentry",
   "keywords": [
     "sentry",
@@ -19,7 +19,7 @@
   },
   "autoload": {
     "psr-4": {
-      "notamedia\\sentry\\": "src"
+      "shyx32\\sentry\\": "src"
     }
   },
   "extra": {
