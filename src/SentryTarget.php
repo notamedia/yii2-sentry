@@ -48,7 +48,7 @@ class SentryTarget extends Target
      */
     public $extraCallback;
     /**
-     * @var callable Callback function that can modify extra's array
+     * @var callable Callback function that can modify tags array
      */
     public $tagsCallback;
 
