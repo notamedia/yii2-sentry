@@ -51,7 +51,7 @@ Writing messages with extra data:
 ], 'category');
 ```
 
-### Extra callback
+### Extra/Tags callback
 
 `extraCallback` property can modify extra's data as callable function:
  
@@ -66,10 +66,17 @@ Writing messages with extra data:
                 // some manipulation with data
                 $extra['some_data'] = \Yii::$app->someComponent->someMethod();
                 return $extra;
-            }
+            },
+            'tagsCallback' => function ($message, $tags) {
+                // some manipulation with tags
+                $tags['custom_tag'] = \Yii::$app->someComponent->getTag();
+                return $tags;
+            }		
         ],
     ],
 ```
+
+
 
 ### Tags
 
