@@ -47,6 +47,10 @@ class SentryTarget extends Target
      * @var callable Callback function that can modify extra's array
      */
     public $extraCallback;
+    /**
+     * @var callable Callback function that can modify extra's array
+     */
+    public $tagsCallback;
 
     /**
      * @inheritDoc
@@ -145,12 +149,14 @@ class SentryTarget extends Target
                     $data['extra']['context'] = parent::getContextMessage();
                 }
 
-                $data = $this->runExtraCallback($text, $data);
-
                 $scope->setUser($data['userData']);
+                
+                $data = $this->runExtraCallback($text, $data);
                 foreach ($data['extra'] as $key => $value) {
                     $scope->setExtra((string) $key, $value);
                 }
+                
+                $data = $this->runTagsCallback($text, $data);
                 foreach ($data['tags'] as $key => $value) {
                     if ($value) {
                         $scope->setTag($key, $value);
@@ -189,6 +195,23 @@ class SentryTarget extends Target
         return $data;
     }
 
+    /**
+     * Calls the tags callback if it exists
+     *
+     * @param mixed $text
+     * @param array $data
+     *
+     * @return array
+     */
+    public function runTagsCallback($text, $data)
+    {
+        if (is_callable($this->tagsCallback)) {
+            $data['tags'] = call_user_func($this->tagsCallback, $text, $data['tags'] ?? []);
+        }
+
+        return $data;
+    }    
+    
     /**
      * Returns the text display of the specified level for the Sentry.
      *
